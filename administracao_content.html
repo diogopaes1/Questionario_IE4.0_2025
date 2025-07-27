@@ -686,6 +686,17 @@
         // Inicialização ao carregar a página
         document.addEventListener('DOMContentLoaded', loadResponses);
         document.getElementById('clearDataBtn').addEventListener('click', clearAllData);
+
+        // --- OBSERVAÇÃO IMPORTANTE: Removido o setInterval de auto-refresh ---
+        // Se você tiver um bloco como este abaixo no seu arquivo, por favor, remova-o.
+        /*
+        setInterval(function() {
+            if (document.visibilityState === 'visible') {
+                loadResponses();
+            }
+        }, 30000);
+        */
+        // --- FIM OBSERVAÇÃO ---
     </script>
 </body>
 </html>
