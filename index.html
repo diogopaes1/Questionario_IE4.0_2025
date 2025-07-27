@@ -11,7 +11,7 @@
         .hero-section {
             background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('assets/images/banner-ie40.png') no-repeat center center;
             background-size: cover;
-            color: white;
+            color: white; /* Esta propriedade afeta o texto dentro de .hero-section como um todo, mas é sobreposta pelo h1 abaixo */
             padding: 80px 20px;
             text-align: center;
             border-radius: 12px;
@@ -22,6 +22,7 @@
             font-size: 3.2em;
             margin-bottom: 20px;
             font-weight: 700;
+            color: white; /* <--- MUDAR AQUI PARA BRANCO */
         }
         .hero-section p {
             font-size: 1.3em;
@@ -106,7 +107,7 @@
                 <a href="index.html" class="logo">E=IE 4.0</a>
                 <ul>
                     <li><a href="questionario.html">Questionário</a></li>
-                    <li><a href="informacoes.html">Informações</a></li> <!-- ADICIONADO AQUI -->
+                    <li><a href="informacoes.html">Informações</a></li>
                     <li><a href="ementa.html">Curso</a></li>
                     <li><a href="administracao.html">Administração</a></li>
                 </ul>
