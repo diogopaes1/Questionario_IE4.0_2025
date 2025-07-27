@@ -6,6 +6,8 @@
     <title>Questionário: Engajamento, Bem-Estar e Estresse</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css"> <!-- Link para o CSS global -->
+    <!-- Incluindo Chart.js para o gráfico radar -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -29,6 +31,7 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             border-top: 6px solid #4a90e2;
             box-sizing: border-box;
+            margin-bottom: 30px; /* Adicionado margem para a nova seção de resultados */
         }
         h1 {
             color: #2c3e50;
@@ -208,6 +211,79 @@
             transform: translateY(-2px);
             box-shadow: 0 6px 15px rgba(224, 176, 14, 0.4);
         }
+
+        /* NOVOS ESTILOS PARA A SEÇÃO DE RESULTADOS */
+        #results-section {
+            display: none; /* Escondido por padrão, aparece após o envio */
+            background-color: #ffffff;
+            padding: 35px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-top: 6px solid #28a745; /* Cor verde para destacar resultados */
+            box-sizing: border-box;
+            margin-top: 30px; /* Margem do formulário */
+            max-width: 800px;
+            width: 100%;
+        }
+
+        #results-section h2 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 2em;
+            font-weight: 600;
+        }
+
+        .results-content {
+            display: flex;
+            flex-wrap: wrap; /* Permite quebras de linha em telas pequenas */
+            gap: 20px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .scores-display {
+            flex: 1; /* Ocupa o espaço disponível */
+            min-width: 250px; /* Largura mínima para evitar quebras ruins */
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding: 15px;
+            background-color: #f8fbfd;
+            border-radius: 8px;
+            border: 1px solid #e0e6eb;
+        }
+
+        .score-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .score-item span:last-child {
+            color: #4a90e2; /* Cor azul para os valores percentuais */
+            font-size: 1.2em;
+        }
+
+        .chart-container {
+            flex: 1;
+            min-width: 300px; /* Largura mínima para o gráfico */
+            max-width: 400px; /* Largura máxima para o gráfico */
+            height: 300px; /* Altura fixa para o gráfico */
+        }
+        @media (max-width: 768px) {
+            .results-content {
+                flex-direction: column; /* Pilha verticalmente em telas pequenas */
+            }
+            .chart-container {
+                width: 100%; /* Gráfico ocupa toda a largura em telas pequenas */
+                max-width: none;
+                height: auto; /* Altura flexível para o gráfico */
+            }
+        }
     </style>
 </head>
 <body>
@@ -217,7 +293,7 @@
                 <a href="index.html" class="logo">E=IE 4.0</a>
                 <ul>
                     <li><a href="questionario.html">Questionário</a></li>
-                    <li><a href="informacoes.html">Informações</a></li> <!-- ADICIONADO AQUI -->
+                    <li><a href="informacoes.html">Informações</a></li>
                     <li><a href="administracao.html">Administração</a></li>
                     <li><a href="ementa.html">Sobre o Curso</a></li>
                 </ul>
@@ -251,6 +327,33 @@
         </form>
     </div>
 
+    <!-- NOVA SEÇÃO: Resultados Pessoais -->
+    <div id="results-section" class="container">
+        <h2>Seus Resultados Pessoais</h2>
+        <div class="results-content">
+            <div class="scores-display">
+                <div class="score-item">
+                    <span>Engajamento:</span>
+                    <span id="personal-engajamento-score">0.00%</span>
+                </div>
+                <div class="score-item">
+                    <span>Bem-Estar:</span>
+                    <span id="personal-bemEstar-score">0.00%</span>
+                </div>
+                <div class="score-item">
+                    <span>Estresse:</span>
+                    <span id="personal-estresse-score">0.00%</span>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="personalRadarChart"></canvas>
+            </div>
+        </div>
+        <p class="info-header" style="margin-top: 30px;">
+            Para uma interpretação detalhada desses resultados, <a href="informacoes.html">clique aqui e acesse a seção de Informações</a>.
+        </p>
+    </div>
+
     <script>
         const questionsData = [
             { id: 'q1', text: 'Sinto-me energizado(a) e entusiasmado(a) com minhas tarefas diárias na escola.', category: 'engajamento' },
@@ -268,6 +371,7 @@
         ];
 
         let currentResponses = {};
+        let personalRadarChartInstance = null; // Variável para armazenar a instância do Chart.js
 
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
@@ -349,9 +453,12 @@
             }
 
             localStorage.setItem('questionCategories', JSON.stringify(categoryMap));
+            
+            // Esconde a seção de resultados ao carregar a página
+            document.getElementById('results-section').style.display = 'none';
         }
 
-        // NOVO: Função para converter o valor do slider (-5 a 5) para uma escala de 1 a 11
+        // Função para converter o valor do slider (-5 a 5) para uma escala de 1 a 11
         function convertValueToPoints(value) {
             // Se -5 é 1 ponto, 0 é 6 pontos, 5 é 11 pontos.
             // A fórmula é: valor_convertido = valor_original + 6
@@ -382,7 +489,7 @@
                     if (categoryScores[category].length > 0) {
                         const sum = categoryScores[category].reduce((a, b) => a + b, 0);
                         const average = sum / categoryScores[category].length;
-                        // NOVO: Cálculo da porcentagem para a escala de 1 a 11 (max 11, min 1, range 10)
+                        // Cálculo da porcentagem para a escala de 1 a 11 (max 11, min 1, range 10)
                         finalScores[category] = ((average - 1) / 10) * 100;
                     } else {
                         finalScores[category] = 0;
@@ -395,6 +502,85 @@
         function generateUniqueIdForSubmission() {
             return Date.now().toString() + '_' + Math.floor(Math.random() * 1000).toString().padStart(3, '0');
         }
+
+        // NOVA FUNÇÃO: Exibe os resultados na seção e renderiza o gráfico
+        function displayPersonalResults(scores) {
+            document.getElementById('personal-engajamento-score').textContent = scores.engajamento.toFixed(2) + '%';
+            document.getElementById('personal-bemEstar-score').textContent = scores.bemEstar.toFixed(2) + '%';
+            document.getElementById('personal-estresse-score').textContent = scores.estresse.toFixed(2) + '%';
+
+            // Dados para o gráfico radar
+            const data = {
+                labels: ['Engajamento', 'Bem-Estar', 'Estresse'],
+                datasets: [{
+                    label: 'Sua Pontuação',
+                    data: [scores.engajamento, scores.bemEstar, scores.estresse],
+                    fill: true,
+                    backgroundColor: 'rgba(74, 144, 226, 0.2)', // Azul para preenchimento
+                    borderColor: 'rgb(74, 144, 226)', // Azul para borda
+                    pointBackgroundColor: 'rgb(74, 144, 226)',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: 'rgb(74, 144, 226)'
+                }]
+            };
+
+            const config = {
+                type: 'radar',
+                data: data,
+                options: {
+                    elements: {
+                        line: {
+                            borderWidth: 3
+                        }
+                    },
+                    scales: {
+                        r: {
+                            angleLines: {
+                                display: false
+                            },
+                            suggestedMin: 0,
+                            suggestedMax: 100,
+                            pointLabels: {
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                },
+                                color: '#333' // Cor dos labels dos eixos
+                            },
+                            ticks: {
+                                display: false // Esconde os números das escalas nos eixos
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false // Esconde a legenda "Sua Pontuação"
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.raw.toFixed(2) + '%';
+                                }
+                            }
+                        }
+                    },
+                    responsive: true,
+                    maintainAspectRatio: false, // Permite que a altura seja controlada pelo CSS
+                },
+            };
+
+            const ctx = document.getElementById('personalRadarChart').getContext('2d');
+            
+            // Destrói a instância anterior do gráfico se existir
+            if (personalRadarChartInstance) {
+                personalRadarChartInstance.destroy();
+            }
+            personalRadarChartInstance = new Chart(ctx, config);
+
+            document.getElementById('results-section').style.display = 'block'; // Mostra a seção de resultados
+        }
+
 
         document.getElementById('questionario-form').addEventListener('submit', function(event) {
             event.preventDefault();
@@ -409,7 +595,7 @@
                 return;
             }
 
-            const scores = calculateScores();
+            const scores = calculateScores(); // Calcula as pontuações
             const submissionId = generateUniqueIdForSubmission();
 
             const submissionData = {
@@ -436,7 +622,8 @@
             })
             .then(() => {
                 messageArea.innerHTML = '<div class="success-message">Respostas enviadas com sucesso! Obrigado pela participação.</div>';
-                resetForm();
+                resetForm(); // Reseta o formulário
+                displayPersonalResults(scores); // Mostra os resultados pessoais e o gráfico
             })
             .catch(error => {
                 console.error('Erro:', error);
@@ -447,6 +634,7 @@
         document.getElementById('reset').addEventListener('click', function() {
             resetForm();
             document.getElementById('message-area').innerHTML = '';
+            document.getElementById('results-section').style.display = 'none'; // Esconde a seção de resultados no reset
         });
 
         function resetForm() {
@@ -461,6 +649,8 @@
             if (!userIdInput.readOnly) {
                 userIdInput.value = '';
             }
+            // Não esconde a seção de resultados aqui, pois isso é feito no event listener do reset button.
+            // Se fosse escondido aqui, sumiria antes da mensagem de sucesso no submit.
         }
 
         document.addEventListener('DOMContentLoaded', initQuestionnaire);
