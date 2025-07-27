@@ -132,14 +132,14 @@
             display: inline-block;    /* ← Permite controle de largura */
             /*        font-family: 'Courier New', monospace; /* ← Fonte monoespaçada */
         }
-        .slider-labels .label-extreme {
+        .slider-labels .label-extreme { /*Texto dos dois nomes discordo ou concordo*/
             font-weight: 600;
             color: #e74c3c; /* Cor para Discordo Totalmente */
             position: absolute;
             white-space: nowrap;
             top: -45px; /* Ajuste para não sobrepor */
             padding: 0 30px;
-            transform: translateX(-2px); /* ← COMPENSA o movimento do pai, se mudar "transform: translateX(-23px)" em  .slider-labels ;*/
+            transform: translateX(-5px); /* ← COMPENSA o movimento do pai, se mudar "transform: translateX(-23px)" em  .slider-labels ;*/
         }
         .slider-labels .label-extreme.right {
             color: #2ecc71; /* Cor para Concordo Totalmente */
