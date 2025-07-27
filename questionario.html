@@ -125,13 +125,13 @@
             transform: translateX(-23px); /* Move tudo 5px para esquerda */
         }
         .slider-labels span {
-    flex-grow: 1;
-    text-align: center;
-    position: relative;
-    min-width: 20px;          /* ← Largura mínima fixa */
-    display: inline-block;    /* ← Permite controle de largura */
-    /*        font-family: 'Courier New', monospace; /* ← Fonte monoespaçada */
-}
+            flex-grow: 1;
+            text-align: center;
+            position: relative;
+            min-width: 20px;          /* ← Largura mínima fixa */
+            display: inline-block;    /* ← Permite controle de largura */
+            /*        font-family: 'Courier New', monospace; /* ← Fonte monoespaçada */
+        }
         .slider-labels .label-extreme {
             font-weight: 600;
             color: #e74c3c; /* Cor para Discordo Totalmente */
@@ -274,11 +274,12 @@
             }
         }
 
-        function createQuestionElement(question) {
+        // Modificação aqui: Adicionado 'questionNumber' como parâmetro
+        function createQuestionElement(question, questionNumber) {
             const questionDiv = document.createElement('div');
             questionDiv.classList.add('question-item');
             questionDiv.innerHTML = `
-                <p>${question.text}</p>
+                <p>${questionNumber}. ${question.text}</p> <!-- Numeração adicionada aqui -->
                 <div class="slider-wrapper">
                     <div class="slider-container">
                         <input type="range" min="-5" max="5" value="0" step="1" class="slider" data-question-id="${question.id}">
@@ -320,8 +321,9 @@
             const shuffledQuestions = [...questionsData];
             shuffleArray(shuffledQuestions);
 
-            shuffledQuestions.forEach(question => {
-                const questionElement = createQuestionElement(question);
+            // Modificação aqui: Passando o índice + 1 como 'questionNumber'
+            shuffledQuestions.forEach((question, index) => {
+                const questionElement = createQuestionElement(question, index + 1); // index + 1 para começar de 1
                 questionsContainer.appendChild(questionElement);
                 currentResponses[question.id] = 0;
             });
