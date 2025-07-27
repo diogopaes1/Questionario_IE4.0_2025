@@ -32,9 +32,18 @@
         h1 {
             color: #2c3e50;
             text-align: center;
-            margin-bottom: 25px;
+            margin-bottom: 5px; /* Reduz margem para o subtítulo */
             font-size: 2.2em;
             font-weight: 600;
+        }
+        /* Novo estilo para o subtítulo abaixo do h1 */
+        .h1-subtitle {
+            text-align: center;
+            color: #4a90e2; /* Cor azul para destacar o subtítulo */
+            font-size: 1.5em; /* Tamanho razoável para subtítulo */
+            font-weight: 500;
+            margin-top: 0;
+            margin-bottom: 25px; /* Margem após o subtítulo */
         }
         .general-averages {
             background-color: #e6f7ff;
@@ -253,18 +262,57 @@
             from { opacity: 0; transform: translateY(-20px); }
             to { opacity: 1; transform: translateY(0); }
         }
+
+        /* Novo estilo para o título da seção de explicações */
+        .section-main-title {
+            color: #2c3e50; /* Mesma cor do h1 */
+            text-align: center; /* Mesma alinhamento do h1 */
+            font-size: 2.2em; /* Mesma fonte do h1 */
+            font-weight: 600; /* Mesmo peso de fonte do h1 */
+            margin-top: 50px; /* Margem superior para separar da seção anterior */
+            margin-bottom: 25px;
+        }
+
+        /* Estilo para listas nas explicações */
+        .content-section ul {
+            list-style: disc; /* Bolinhas para a lista */
+            margin-left: 20px;
+            padding-left: 0;
+            margin-bottom: 20px;
+        }
+        .content-section ul li {
+            margin-bottom: 10px;
+            color: #555;
+            font-size: 1.05em;
+            line-height: 1.6;
+        }
+        .content-section h3 {
+            color: #2c3e50; /* Cor igual a h3 existente */
+            font-size: 1.5em;
+            font-weight: 600;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+        .content-section p {
+            margin-bottom: 15px;
+            color: #555;
+            line-height: 1.7;
+            font-size: 1.05em;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <!-- Grupo de botões de navegação e atualização -->
         <div class="navigation-links-group">
-            <a href="index.html" class="navigation-link">🏠 Home</a>
+            <a href="index.html" class="navigation-link">�� Home</a>
             <a href="questionario.html" class="navigation-link">← Voltar ao Questionário</a>
             <button class="refresh-btn" onclick="loadResponses()">🔄 Atualizar Dados</button>
         </div>
         
         <h1>Administração de Respostas do Questionário</h1>
+        <!-- NOVO: Subtítulo para o painel -->
+        <h2 class="h1-subtitle">Análise dos Indicadores Emocionais: Engajamento, Bem-Estar e Estresse</h2>
 
         <div class="general-averages">
             <div class="average-item">
@@ -304,6 +352,38 @@
         <div id="status-message" class="status-message" style="display: none;"></div>
 
         <button class="clear-data-btn" id="clearDataBtn">Limpar Todos os Dados</button>
+
+        <!-- NOVO: Seção de Explicação dos Níveis dos Indicadores -->
+        <h2 class="section-main-title">Entendendo Seus Resultados e Níveis de Impacto</h2>
+        <div class="content-section" style="margin-top: 30px;">
+            <p>Os resultados apresentados no painel de administração fornecem uma visão quantitativa dos níveis de Engajamento, Bem-Estar e Estresse. Para uma interpretação mais profunda, é fundamental compreender o significado de cada faixa de percentual, que reflete o estado emocional geral do grupo ou indivíduo. Estas interpretações são baseadas em princípios gerais de psicologia organizacional e bem-estar, e servem como guias para identificar áreas que podem necessitar de atenção ou estratégias de intervenção.</p>
+
+            <h3>Engajamento: Conexão e Dedicação</h3>
+            <p>O engajamento refere-se ao nível de conexão emocional e dedicação dos indivíduos às suas tarefas e ao ambiente educacional. Um alto engajamento está associado à proatividade, satisfação e um forte senso de propósito.</p>
+            <ul>
+                <li><strong>Menor que 50% (Baixo Engajamento):</strong> Indica um estado de desinteresse ou apatia. O grupo pode sentir-se desconectado, desmotivado, ou sem propósito, levando a uma baixa produtividade e potencial risco de rotatividade. É crucial investigar as causas e implementar estratégias de fortalecimento da cultura e reconhecimento.</li>
+                <li><strong>Entre 50% e 75% (Engajamento Moderado):</strong> Sugere um engajamento consistente, com indivíduos que cumprem suas responsabilidades, mas podem não estar totalmente inspirados ou proativos. Há espaço significativo para estimular maior iniciativa, criatividade e paixão, transformando a satisfação em entusiasmo.</li>
+                <li><strong>Maior que 75% (Alto Engajamento):</strong> Representa um grupo vibrante e energizado. Os indivíduos estão altamente motivados, proativos e veem valor significativo em suas contribuições. Este nível de engajamento fomenta um ambiente de inovação e alta performance, devendo ser mantido e celebrado.</li>
+            </ul>
+
+            <h3>Bem-Estar: Saúde Emocional e Resiliência</h3>
+            <p>O bem-estar psicológico e emocional é a base para a saúde e a capacidade de lidar com desafios. Reflete a satisfação geral com a vida e a capacidade de se recuperar de adversidades.</p>
+            <ul>
+                <li><strong>Menor que 50% (Baixo Bem-Estar):</strong> Alerta para um possível estado de sobrecarga ou desequilíbrio emocional. O grupo pode estar experimentando fadiga, ansiedade ou baixa resiliência, o que impacta negativamente o desempenho e a qualidade de vida. Intervenções focadas em apoio psicológico e balanceamento vida-trabalho são recomendadas.</li>
+                <li><strong>Entre 50% e 75% (Bem-Estar Moderado):</strong> Demonstra uma condição geral de satisfação, onde o grupo consegue gerenciar as demandas diárias. No entanto, podem haver flutuações ou momentos de maior vulnerabilidade. Estratégias de autoconhecimento, mindfulness e promoção de ambientes positivos podem fortalecer ainda mais o bem-estar.</li>
+                <li><strong>Maior que 75% (Alto Bem-Estar):</strong> Indica um grupo saudável e resiliente. Os indivíduos estão prosperando, com alta capacidade de adaptação, otimismo e inteligência emocional. Este é um ambiente propício para o crescimento pessoal e coletivo, onde a saúde mental é uma prioridade.</li>
+            </ul>
+
+            <h3>Estresse: Gerenciamento de Pressões</h3>
+            <p>O estresse, em níveis adequados, pode ser um fator motivador. Contudo, níveis elevados e prolongados são prejudiciais à saúde e ao desempenho. Este indicador mede a percepção de sobrecarga e a capacidade de coping.</p>
+            <ul>
+                <li><strong>Menor que 50% (Estresse Baixo/Gerenciável):</strong> Sugere um ambiente onde as pressões são percebidas como desafiadoras, mas controláveis. Os indivíduos sentem-se capazes de lidar com as demandas, resultando em produtividade saudável e baixo risco de exaustão.</li>
+                <li><strong>Entre 50% e 75% (Estresse Moderado/Atenção):</strong> Indica que o estresse pode estar começando a impactar a saúde e o desempenho do grupo. Pode haver sinais de fadiga, irritabilidade ou dificuldade de concentração. É importante implementar estratégias de gestão de tempo, pausas regulares e técnicas de relaxamento para prevenir a escalada.</li>
+                <li><strong>Maior que 75% (Estresse Elevado/Crítico):</strong> Sinaliza um estado de sobrecarga crônica. Os indivíduos podem estar à beira do esgotamento (burnout), com potenciais impactos negativos na saúde física e mental, e na eficácia. Requer intervenção urgente, como reavaliação de cargas de trabalho, suporte profissional e programas de bem-estar intensivos.</li>
+            </ul>
+        </div>
+        <!-- FIM da Seção de Explicação dos Níveis dos Indicadores -->
+
     </div>
 
     <!-- Custom Password Modal - Adicionado fora do .container para facilitar o posicionamento -->
