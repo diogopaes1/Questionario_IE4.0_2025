@@ -15,8 +15,7 @@
             color: #333;
             line-height: 1.6;
             display: flex;
-            justify-content: center;
-            align-items: flex-start;
+            flex-direction: column; /* Permite que o header e o container fiquem em colunas */
             min-height: 100vh;
             box-sizing: border-box;
         }
@@ -30,7 +29,8 @@
             border-top: 6px solid #4a90e2;
             box-sizing: border-box;
             text-align: center;
-            margin-top: 50px;
+            margin: 50px auto 0; /* Centraliza verticalmente e adiciona margem superior */
+            flex-grow: 1; /* Permite que o container ocupe o espaço restante */
         }
         h1 {
             color: #2c3e50;
@@ -89,18 +89,18 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <nav class="main-nav">
-                <a href="index.html" class="logo">E=IE 4.0</a>
-                <ul>
-                    <li><a href="questionario.html">Questionário</a></li>
-                    <li><a href="administracao.html">Administração</a></li>
-                    <li><a href="ementa.html">Sobre o Curso</a></li>
-                </ul>
-            </nav>
-        </header>
+    <header>
+        <nav class="main-nav">
+            <a href="index.html" class="logo">E=IE 4.0</a>
+            <ul>
+                <li><a href="questionario.html">Questionário</a></li>
+                <li><a href="administracao.html">Administração</a></li>
+                <li><a href="ementa.html">Sobre o Curso</a></li>
+            </ul>
+        </nav>
+    </header>
 
+    <div class="container">
         <h1>Acesso Administrativo</h1>
         <form id="loginForm" class="login-form">
             <div>
@@ -116,6 +116,10 @@
         </form>
     </div>
 
+    <footer>
+        <p>&copy; 2025 E=IE 4.0. Todos os direitos reservados. Instrutor: Diogo Paes da Costa.</p>
+    </footer>
+
     <script>
         document.getElementById('loginForm').addEventListener('submit', async function(event) {
             event.preventDefault();
@@ -127,40 +131,27 @@
             loginMessage.textContent = 'Verificando credenciais...';
             loginMessage.style.color = '#4a90e2';
 
-            // ATENÇÃO: SUBSTITUA ESTA URL PELA URL DO SEU NOVO GOOGLE APPS SCRIPT DE AUTENTICAÇÃO
-            const AUTH_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyvlr4gIKGuHICnHSqCZ03cUdWPeP0wy-pTN3Vu24p4LBERn9lY6-4W2tacnHJX0Ak/exec'; // <--- MUDE ISSO!
+            // URL DO GOOGLE APPS SCRIPT PARA AUTENTICAÇÃO
+            // Esta é a URL que você obteve ao implantar seu Apps Script de autenticação.
+            const AUTH_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyvlr4gIKGuHICnHSqCZ03cUdWPeP0wy-pTN3Vu24p4LBERn9lY6-4W2tacnHJX0Ak/exec';
+
             try {
                 const response = await fetch(AUTH_SCRIPT_URL, {
                     method: 'POST',
-                    mode: 'no-cors', // Necessário para evitar erros CORS com Apps Script
+                    // mode: 'no-cors', // REMOVIDO: Apps Script já gerencia CORS
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({ username, password })
                 });
 
-                // Como 'no-cors' não permite ler o corpo da resposta,
-                // vamos assumir sucesso se a requisição não falhar no nível da rede.
-                // Isso não é o ideal para segurança, mas é a forma de fazer funcionar
-                // com o Google Apps Script e requisições simples de cliente.
-                // O ideal seria que o Apps Script pudesse definir um cookie ou algo mais seguro.
+                // Verifica se a resposta HTTP foi bem-sucedida (status 200-299)
+                if (!response.ok) {
+                    throw new Error(`Erro de rede ou no servidor: ${response.status} ${response.statusText}`);
+                }
 
-                // Para fins de demonstração, após o fetch, assumimos que se não houve erro
-                // na requisição, o login foi processado. O Apps Script DEVE retornar um redirect
-                // ou sinalizar o sucesso de alguma forma mais robusta em um ambiente de produção.
-
-                // Alternativa mais simples para "no-cors":
-                // O Apps Script pode redirecionar o navegador diretamente
-                // ou retornar um código de status HTTP que o fetch API consegue ver (se não for no-cors)
-                // Para este exemplo, vamos considerar que o Apps Script fará um redirect para o conteúdo.
-                // Mas como não podemos ler a resposta aqui com 'no-cors', vamos simular o sucesso
-                // e fazer o redirect no cliente, o que NÃO É SEGURO para ambientes críticos.
-
-                // Para o seu caso, o Apps Script retornará um JSON. Portanto, precisamos
-                // ajustar o modo para 'cors' e configurar o Apps Script para aceitar CORS.
-                // No entanto, se o Apps Script estiver configurado como 'exec', ele já aceita CORS.
-
-                const responseData = await response.json(); // Tenta ler a resposta JSON
+                // Tenta ler a resposta como JSON
+                const responseData = await response.json();
 
                 if (responseData.success) {
                     loginMessage.textContent = 'Login bem-sucedido! Redirecionando...';
@@ -173,8 +164,8 @@
                 }
 
             } catch (error) {
-                console.error('Erro de rede ou na verificação:', error);
-                loginMessage.textContent = 'Erro ao tentar logar. Tente novamente mais tarde.';
+                console.error('Erro na requisição ou processamento:', error);
+                loginMessage.textContent = 'Erro ao tentar logar. Verifique sua conexão ou tente novamente.';
                 loginMessage.style.color = '#e74c3c';
             }
         });
