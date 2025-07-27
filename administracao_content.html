@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Administração de Respostas do Questionário</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <!-- INÍCIO: Adição da biblioteca Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FIM: Adição da biblioteca Chart.js -->
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -74,6 +77,26 @@
             font-weight: 700;
             color: #2c3e50;
         }
+        /* INÍCIO: Estilos para o gráfico radar das médias gerais */
+        .average-chart-container {
+            max-width: 600px; /* Largura máxima para centralizar e manter legível */
+            margin: 30px auto 30px auto; /* Centralizado, com margem acima e abaixo */
+            padding: 20px;
+            background-color: #fdfdfd; /* Fundo branco ou quase branco */
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08); /* Sombra suave */
+            border-top: 5px solid #4a90e2; /* Borda superior colorida */
+            box-sizing: border-box;
+            display: none; /* Escondido por padrão, só aparece se tiver dados */
+        }
+        .average-chart-container h2 {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        /* FIM: Estilos para o gráfico radar das médias gerais */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -305,7 +328,7 @@
     <div class="container">
         <!-- Grupo de botões de navegação e atualização -->
         <div class="navigation-links-group">
-            <a href="index.html" class="navigation-link">�� Home</a>
+            <a href="index.html" class="navigation-link">🏠 Home</a>
             <a href="questionario.html" class="navigation-link">← Voltar ao Questionário</a>
             <button class="refresh-btn" onclick="loadResponses()">🔄 Atualizar Dados</button>
         </div>
@@ -328,6 +351,13 @@
                 <p id="avgEstresse">0.00%</p>
             </div>
         </div>
+
+        <!-- INÍCIO: Seção do Gráfico Radar das Médias Gerais -->
+        <div class="average-chart-container">
+            <h2>Média Geral dos Indicadores</h2>
+            <canvas id="averageRadarChart"></canvas>
+        </div>
+        <!-- FIM: Seção do Gráfico Radar das Médias Gerais -->
 
         <table id="tabela-respostas">
             <thead>
@@ -401,6 +431,9 @@
     </div>
 
     <script>
+        // Variável global para armazenar a instância do Chart.js para o gráfico de médias
+        let averageRadarChartInstance = null; 
+
         // URL ATUALIZADA DO GOOGLE APPS SCRIPT para LEITURA e ESCRITA (se configurado)
         const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz2OubineepVBHoY7uTeoS_VjLrenqJ2dDe7ObNZVV88gU1jedoeQ2SQyX6zMvxmmfv/exec';
         
@@ -432,6 +465,7 @@
         async function loadResponses() {
             const corpoTabela = document.getElementById('corpo-tabela');
             const noDataInfo = document.getElementById('no-data-info');
+            const averageChartContainer = document.querySelector('.average-chart-container');
             
             corpoTabela.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #4a90e2;">Carregando dados...</td></tr>';
             hideStatusMessage(); // Esconde mensagens de status anteriores
@@ -447,9 +481,17 @@
                     document.getElementById('avgEngajamento').textContent = '0.00%';
                     document.getElementById('avgBemEstar').textContent = '0.00%';
                     document.getElementById('avgEstresse').textContent = '0.00%';
+                    // NOVO: Esconde o gráfico se não houver dados
+                    if (averageChartContainer) {
+                        averageChartContainer.style.display = 'none';
+                    }
                     return;
                 } else {
                     noDataInfo.style.display = 'none';
+                    // NOVO: Mostra o gráfico se houver dados
+                    if (averageChartContainer) {
+                        averageChartContainer.style.display = 'block';
+                    }
                 }
 
                 let totalEngajamento = 0;
@@ -478,15 +520,97 @@
                 });
 
                 const count = allSubmissions.length;
-                document.getElementById('avgEngajamento').textContent = (totalEngajamento / count).toFixed(2) + '%';
-                document.getElementById('avgBemEstar').textContent = (totalBemEstar / count).toFixed(2) + '%';
-                document.getElementById('avgEstresse').textContent = (totalEstresse / count).toFixed(2) + '%';
+                // Armazenando as médias calculadas para uso no gráfico
+                const avgEngajamento = (totalEngajamento / count);
+                const avgBemEstar = (totalBemEstar / count);
+                const avgEstresse = (totalEstresse / count);
+
+                document.getElementById('avgEngajamento').textContent = avgEngajamento.toFixed(2) + '%';
+                document.getElementById('avgBemEstar').textContent = avgBemEstar.toFixed(2) + '%';
+                document.getElementById('avgEstresse').textContent = avgEstresse.toFixed(2) + '%';
+
+                // NOVO: Desenha o gráfico radar com as médias gerais
+                drawAverageRadarChart(avgEngajamento, avgBemEstar, avgEstresse);
+
             } catch (error) {
                 console.error('Erro ao carregar dados:', error);
                 corpoTabela.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #e74c3c;">Erro ao carregar dados. Tente recarregar a página.</td></tr>';
                 displayStatusMessage('Erro ao carregar dados. Verifique sua conexão e o Google Apps Script.', 'error');
+                // NOVO: Esconde o gráfico em caso de erro
+                if (averageChartContainer) {
+                    averageChartContainer.style.display = 'none';
+                }
             }
         }
+
+        // NOVA FUNÇÃO: Desenha o gráfico radar das médias gerais
+        function drawAverageRadarChart(engajamento, bemEstar, estresse) {
+            const ctx = document.getElementById('averageRadarChart').getContext('2d');
+
+            // Destrói a instância anterior do gráfico se existir para evitar sobreposição
+            if (averageRadarChartInstance) {
+                averageRadarChartInstance.destroy();
+            }
+
+            averageRadarChartInstance = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['Engajamento', 'Bem-Estar', 'Estresse'],
+                    datasets: [{
+                        label: 'Média Geral',
+                        data: [engajamento, bemEstar, estresse],
+                        fill: true,
+                        backgroundColor: 'rgba(74, 144, 226, 0.2)', // Azul para preenchimento
+                        borderColor: 'rgb(74, 144, 226)', // Azul para borda
+                        pointBackgroundColor: 'rgb(74, 144, 226)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgb(74, 144, 226)'
+                    }]
+                },
+                options: {
+                    elements: {
+                        line: {
+                            borderWidth: 3
+                        }
+                    },
+                    scales: {
+                        r: {
+                            angleLines: {
+                                display: false
+                            },
+                            suggestedMin: 0, // Mínimo da escala do radar
+                            suggestedMax: 100, // Máximo da escala do radar
+                            pointLabels: {
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                },
+                                color: '#333' // Cor dos labels dos eixos
+                            },
+                            ticks: {
+                                display: false // Esconde os números das escalas nos eixos
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false // Esconde a legenda "Média Geral"
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.raw.toFixed(2) + '%';
+                                }
+                            }
+                        }
+                    },
+                    responsive: true,
+                    maintainAspectRatio: false, // Permite que a altura e largura sejam controladas pelo CSS
+                }
+            });
+        }
+        // FIM: Nova Função drawAverageRadarChart
 
         // Nova função para lidar com a limpeza dos dados, incluindo a verificação da senha
         async function handleClearData(password) {
