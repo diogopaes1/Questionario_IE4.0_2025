@@ -102,26 +102,24 @@
             text-align: center;
             font-weight: 600;
         }
+
+        /* --- INÍCIO DAS NOVAS REGRAS CSS PARA A SEÇÃO PROGRAMÁTICA --- */
+
         .program-section ul {
-            list-style: none;
-            padding: 0;
+            list-style: none; /* Remove marcadores de lista padrão */
+            padding: 0; /* Remove padding padrão */
         }
         .program-section li {
             background-color: #eef2f7;
-            padding: 15px 20px;
-            margin-bottom: 15px;
+            padding: 15px 20px; /* Padding interno do item da lista principal */
+            margin-bottom: 15px; /* Espaçamento entre os itens da lista principal */
             border-radius: 8px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
+            display: flex; /* Habilita Flexbox para alinhar o tempo e o conteúdo */
+            align-items: flex-start; /* Alinha os itens flexíveis pelo topo */
+            gap: 15px; /* Espaço entre o span.time e o div.program-content */
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
             font-size: 1.05em;
             color: #333;
-        }
-        .program-section li strong {
-            color: #4a90e2;
-            font-size: 1.1em;
-            flex-shrink: 0;
         }
         .program-section li .time {
             background-color: #4a90e2;
@@ -130,8 +128,47 @@
             border-radius: 5px;
             font-weight: 600;
             font-size: 0.9em;
-            flex-shrink: 0;
+            flex-shrink: 0; /* Garante que o span.time não encolha */
+            align-self: flex-start; /* Alinha o tempo ao topo dentro do flex container */
+            height: fit-content; /* Ajusta a altura ao conteúdo para evitar expansão desnecessária */
+            min-width: 50px; /* Garante espaço mínimo para "110 min" */
+            text-align: center; /* Centraliza o texto do tempo */
         }
+
+        /* Novo estilo para o wrapper do título e sub-itens */
+        .program-section .program-content {
+            flex-grow: 1; /* Permite que o conteúdo ocupe o espaço restante */
+            min-width: 0; /* Permite que o item encolha para evitar estouro em telas pequenas */
+        }
+
+        .program-section li strong {
+            color: #4a90e2;
+            font-size: 1.1em;
+            display: block; /* Garante que o título principal ocupe sua própria linha */
+            margin-bottom: 8px; /* Espaço entre o título principal e a sub-lista */
+            line-height: 1.3; /* Ajuste a altura da linha para condensar */
+        }
+
+        .program-section li ul {
+            list-style: disc; /* Marcadores de disco para a sub-lista */
+            margin-top: 5px; /* Reduz espaço do título principal */
+            margin-bottom: 0; /* Remove margem inferior padrão */
+            padding-left: 20px; /* Indentação para a sub-lista */
+            font-size: 0.95em; /* Fonte ligeiramente menor para sub-itens */
+            color: #555; /* Cor mais suave para sub-itens */
+        }
+
+        .program-section li ul li {
+            background-color: transparent; /* Remove fundo dos sub-itens */
+            padding: 2px 0; /* Reduz padding dos sub-itens */
+            margin-bottom: 5px; /* Reduz margem entre sub-itens */
+            box-shadow: none; /* Remove sombra dos sub-itens */
+            border: none; /* Remove borda dos sub-itens */
+            display: list-item; /* Restaura o display padrão de item de lista */
+        }
+
+        /* --- FIM DAS NOVAS REGRAS CSS PARA A SEÇÃO PROGRAMÁTICA --- */
+
         @media (max-width: 768px) {
             .course-details {
                 flex-direction: column;
@@ -140,6 +177,27 @@
             .course-detail-item {
                 max-width: 100%;
             }
+
+            /* --- INÍCIO DAS REGRAS RESPONSIVAS ESPECÍFICAS PARA A SEÇÃO PROGRAMÁTICA --- */
+            .program-section li {
+                flex-direction: column; /* Empilha o tempo e o conteúdo verticalmente */
+                align-items: flex-start; /* Alinha tudo ao topo/esquerda */
+                gap: 8px; /* Espaço menor quando empilhado */
+                padding: 15px; /* Ajusta o padding para telas menores */
+            }
+            .program-section li .time {
+                margin-bottom: 5px; /* Margem abaixo do tempo quando empilhado */
+                min-width: auto; /* Remove largura mínima fixa em mobile */
+            }
+            .program-section li strong {
+                font-size: 1em; /* Ajusta o tamanho da fonte do título principal em mobile */
+                margin-bottom: 5px; /* Reduz a margem em mobile */
+            }
+            .program-section li ul {
+                padding-left: 15px; /* Ajusta a indentação da sub-lista em mobile */
+                font-size: 0.9em; /* Reduz ainda mais a fonte dos sub-itens em mobile */
+            }
+            /* --- FIM DAS REGRAS RESPONSIVAS ESPECÍFICAS PARA A SEÇÃO PROGRAMÁTICA --- */
         }
     </style>
 </head>
@@ -150,7 +208,7 @@
                 <a href="index.html" class="logo">E=IE 4.0</a>
                 <ul>
                     <li><a href="questionario.html">Questionário</a></li>
-                    <li><a href="informacoes.html">Informações</a></li> <!-- ADICIONADO AQUI -->
+                    <li><a href="informacoes.html">Informações</a></li>
                     <li><a href="ementa.html">Curso</a></li>
                     <li><a href="administracao.html">Administração</a></li>
                 </ul>
@@ -205,44 +263,52 @@
             <ul>
                 <li>
                     <span class="time">45 min</span>
-                    <strong>1. A Era da Disrupção Educacional: Desafios e Oportunidades</strong>
-                    <ul>
-                        <li>Panorama dos desafios da escola e a necessidade de novas abordagens;</li>
-                        <li>A IE 4.0: A fusão estratégica da Inteligência Emocional, Inteligência Artificial e Análise de Dados;</li>
-                        <li>O papel do gestor/professor como Arquiteto de Futuros e Agente de Mudança.</li>
-                    </ul>
+                    <div class="program-content">
+                        <strong>1. A Era da Disrupção Educacional: Desafios e Oportunidades</strong>
+                        <ul>
+                            <li>Panorama dos desafios da escola e a necessidade de novas abordagens;</li>
+                            <li>A IE 4.0: A fusão estratégica da Inteligência Emocional, Inteligência Artificial e Análise de Dados;</li>
+                            <li>O papel do gestor/professor como Arquiteto de Futuros e Agente de Mudança.</li>
+                        </ul>
+                    </div>
                 </li>
                 <li>
                     <span class="time">110 min</span>
-                    <strong>2. Desvendando o Potencial: Indicadores e Ferramentas para Agir AGORA</strong>
-                    <ul>
-                        <li>Indicador Disruptivo 1: O "Radar de Bem-Estar e Engajamento Preditivo". Como dados podem identificar sinais precoces de desengajamento e necessidades de apoio;
-                            [Ideia Testável]: "Termômetro de Clima Escolar Digital" com formulários online.
-                        </li>
-                        <li>Ferramenta Inovadora 1: "Tutores Co-piloto e Feedback Super Personalizado (com IA)". Como a IA otimiza o apoio pedagógico e libera o professor para um papel mais estratégico;
-                            [Ideia Testável]: Uso de IAs Generativas para adaptação de materiais e simulação de diálogos.
-                        </li>
-                        <li>Indicador Disruptivo 2: "Otimização Inteligente de Recursos e Rotinas". Análise de dados para maximizar o uso de tempo, espaços e talentos na gestão escolar;</li>
-                        <li>Casos de Sucesso: Exemplos inspiradores de transformação educacional.</li>
-                    </ul>
+                    <div class="program-content">
+                        <strong>2. Desvendando o Potencial: Indicadores e Ferramentas para Agir AGORA</strong>
+                        <ul>
+                            <li>Indicador Disruptivo 1: O "Radar de Bem-Estar e Engajamento Preditivo". Como dados podem identificar sinais precoces de desengajamento e necessidades de apoio;
+                                <br/>[Ideia Testável]: "Termômetro de Clima Escolar Digital" com formulários online.
+                            </li>
+                            <li>Ferramenta Inovadora 1: "Tutores Co-piloto e Feedback Super Personalizado (com IA)". Como a IA otimiza o apoio pedagógico e libera o professor para um papel mais estratégico;
+                                <br/>[Ideia Testável]: Uso de IAs Generativas para adaptação de materiais e simulação de diálogos.
+                            </li>
+                            <li>Indicador Disruptivo 2: "Otimização Inteligente de Recursos e Rotinas". Análise de dados para maximizar o uso de tempo, espaços e talentos na gestão escolar;</li>
+                            <li>Casos de Sucesso: Exemplos inspiradores de transformação educacional.</li>
+                        </ul>
+                    </div>
                 </li>
                 <li>
                     <span class="time">45 min</span>
-                    <strong>3. O Salto para o Futuro: Desafios, Ética e Próximos Passos</strong>
-                    <ul>
-                        <li>Navegando com Sabedoria: A importância da ética, privacidade (LGPD), segurança e equidade no uso da tecnologia. O papel insubstituível da conexão humana;</li>
-                        <li>"Sua Escola, Seu Laboratório": Sugestões de "Quick Wins" e projetos pilotos de baixo custo para iniciar a jornada da IE 4.0.</li>
-                    </ul>
+                    <div class="program-content">
+                        <strong>3. O Salto para o Futuro: Desafios, Ética e Próximos Passos</strong>
+                        <ul>
+                            <li>Navegando com Sabedoria: A importância da ética, privacidade (LGPD), segurança e equidade no uso da tecnologia. O papel insubstituível da conexão humana;</li>
+                            <li>"Sua Escola, Seu Laboratório": Sugestões de "Quick Wins" e projetos pilotos de baixo custo para iniciar a jornada da IE 4.0.</li>
+                        </ul>
+                    </div>
                 </li>
                 <li>
                     <span class="time">30 min</span>
-                    <strong>4. Considerações Gerais</strong>
-                    <ul>
-                        <li>Recapitulando a Essência e a Jornada Continua: Síntese dos aprendizados e o convite à experimentação;</li>
-                        <li>Networking e Colaboração: Estímulo à formação de uma comunidade de prática;</li>
-                        <li>Perspectivas Futuras e Suporte: Apresentação de caminhos para aprofundamento contínuo, consultorias e parcerias estratégicas, oportunidades de negócios futuros. A transformação é uma jornada conjunta!</li>
-                        <li>Outros temas: Entendendo as necessidades especificas de cada unidade educacional e outros temas relevantes.</li>
-                    </ul>
+                    <div class="program-content">
+                        <strong>4. Considerações Gerais</strong>
+                        <ul>
+                            <li>Recapitulando a Essência e a Jornada Continua: Síntese dos aprendizados e o convite à experimentação;</li>
+                            <li>Networking e Colaboração: Estímulo à formação de uma comunidade de prática;</li>
+                            <li>Perspectivas Futuras e Suporte: Apresentação de caminhos para aprofundamento contínuo, consultorias e parcerias estratégicas, oportunidades de negócios futuros. A transformação é uma jornada conjunta!</li>
+                            <li>Outros temas: Entendendo as necessidades especificas de cada unidade educacional e outros temas relevantes.</li>
+                        </ul>
+                    </div>
                 </li>
             </ul>
         </section>
