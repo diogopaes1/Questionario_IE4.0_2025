@@ -4,294 +4,527 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Administração de Respostas do Questionário</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css"> <!-- Link para o CSS global -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        /* Estilos específicos da página de administração, podem complementar ou sobrescrever o style.css */
         body {
             font-family: 'Poppins', sans-serif;
             margin: 0;
-            padding: 0; /* Removido padding para permitir que header/footer ocupem 100% da largura */
-            background-color: #f5f7fa;
-            color: #333;
-            line-height: 1.6;
-            display: flex;
-            flex-direction: column; /* Para organizar header, content e footer em coluna */
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            box-sizing: border-box;
+            color: #333;
         }
-        /* O .container principal do style.css já cuida da margem e largura */
-        .admin-content-container { /* Novo nome para o container interno, para evitar conflito com .container do style.css */
+
+        .container {
             max-width: 1200px;
-            width: 100%;
-            background-color: #ffffff;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-            border-top: 6px solid #28a745;
-            box-sizing: border-box;
-            margin: 30px auto; /* Para centralizar abaixo do header */
-            flex-grow: 1; /* Permite que ocupe o espaço disponível entre header e footer */
-        }
-        h1 {
-            color: #2c3e50;
-            text-align: center;
-            margin-bottom: 25px;
-            font-size: 2.2em;
-            font-weight: 600;
-        }
-        .general-averages {
-            background-color: #e6f7ff;
-            border-left: 6px solid #4a90e2;
+            margin: 0 auto;
             padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
             margin-bottom: 30px;
-            border-radius: 8px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
             display: flex;
-            justify-content: space-around;
+            justify-content: space-between;
+            align-items: center;
             flex-wrap: wrap;
-            gap: 20px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
         }
-        .average-item {
-            text-align: center;
-            flex: 1;
-            min-width: 180px;
-        }
-        .average-item h3 {
-            margin: 0 0 5px 0;
-            color: #4a90e2;
-            font-size: 1.2em;
+
+        .header h1 {
+            color: #667eea;
+            margin: 0;
             font-weight: 600;
         }
-        .average-item p {
-            margin: 0;
-            font-size: 2em;
-            font-weight: 700;
-            color: #2c3e50;
+
+        .header-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
         }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+        }
+
+        .btn-logout {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn-logout:hover {
+            background: #7f8c8d;
+            transform: translateY(-2px);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .content-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            font-weight: 600;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-            border-radius: 8px;
+            background: white;
+            border-radius: 10px;
             overflow: hidden;
         }
-        th, td {
-            border: 1px solid #e0e6eb;
-            padding: 12px 15px;
-            text-align: left;
-        }
+
         th {
-            background-color: #4a90e2;
+            background: #667eea;
             color: white;
+            padding: 15px;
+            text-align: left;
             font-weight: 600;
-            text-transform: uppercase;
             font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            vertical-align: top;
+        }
+
         tr:nth-child(even) {
-            background-color: #f8fbfd;
+            background-color: #f8f9fa;
         }
+
         tr:hover {
-            background-color: #edf2f7;
+            background-color: #e3f2fd;
+            transition: background-color 0.3s ease;
         }
-        .clear-data-btn {
-            display: block;
-            margin: 30px auto 0;
-            padding: 12px 25px;
-            background-color: #e74c3c;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 1em;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        }
-        .clear-data-btn:hover {
-            background-color: #c0392b;
-            transform: translateY(-2px);
-        }
-        .no-data-message {
+
+        .loading {
             text-align: center;
-            color: #777;
+            padding: 50px;
+            color: #667eea;
             font-size: 1.1em;
-            margin-top: 30px;
-            padding: 20px;
-            border: 1px dashed #ccc;
-            border-radius: 8px;
-            background-color: #fff;
         }
-        .navigation-link {
+
+        .loading::after {
+            content: '';
             display: inline-block;
-            margin-bottom: 20px;
-            padding: 10px 15px;
-            background-color: #4a90e2;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            font-weight: 600;
-            transition: background-color 0.3s ease;
-        }
-        .navigation-link:hover {
-            background-color: #357abd;
-        }
-        .refresh-btn {
-            display: inline-block;
+            width: 20px;
+            height: 20px;
             margin-left: 10px;
-            padding: 10px 15px;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
+            border: 2px solid #667eea;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s ease-in-out infinite;
         }
-        .refresh-btn:hover {
-            background-color: #218838;
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error {
+            color: #e74c3c;
+            text-align: center;
+            padding: 20px;
+            background: #fdf2f2;
+            border-radius: 8px;
+            border: 1px solid #fecaca;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+        }
+
+        .empty-state-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .header-controls {
+                justify-content: center;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 15px;
+            }
+
+            .content-section {
+                padding: 20px;
+            }
+
+            th, td {
+                padding: 8px;
+                font-size: 0.9em;
+            }
         }
     </style>
 </head>
 <body>
-    <header>
-        <nav class="main-nav">
-            <a href="index.html" class="logo">E=IE 4.0</a>
-            <ul>
-                <li><a href="questionario.html">Questionário</a></li>
-                <li><a href="administracao.html">Administração</a></li>
-                <li><a href="ementa.html">Sobre o Curso</a></li>
-            </ul>
-        </nav>
-    </header>
-
-    <div class="admin-content-container"> <!-- Alterado de .container para .admin-content-container -->
-        <a href="questionario.html" class="navigation-link">← Voltar ao Questionário</a>
-        <button class="refresh-btn" onclick="loadResponses()">�� Atualizar Dados</button>
-        
-        <h1>Administração de Respostas do Questionário</h1>
-
-        <div class="general-averages">
-            <div class="average-item">
-                <h3>Média de Engajamento</h3>
-                <p id="avgEngajamento">0.00%</p>
-            </div>
-            <div class="average-item">
-                <h3>Média de Bem-Estar</h3>
-                <p id="avgBemEstar">0.00%</p>
-            </div>
-            <div class="average-item">
-                <h3>Média de Estresse</h3>
-                <p id="avgEstresse">0.00%</p>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>📊 Painel de Administração</h1>
+            <div class="header-controls">
+                <button class="btn btn-primary" onclick="loadResponses()">🔄 Atualizar Dados</button>
+                <button class="btn btn-danger" id="clearDataBtn">🗑️ Limpar Dados</button>
+                <button class="btn btn-logout" onclick="logout()">🚪 Sair</button>
             </div>
         </div>
 
-        <table id="tabela-respostas">
-            <thead>
-                <tr>
-                    <th>ID Submissão</th>
-                    <th>ID/Nome Usuário</th>
-                    <th>Data/Hora</th>
-                    <th>Engajamento (%)</th>
-                    <th>Bem-Estar (%)</th>
-                    <th>Estresse (%)</th>
-                </tr>
-            </thead>
-            <tbody id="corpo-tabela">
-            </tbody>
-        </table>
-
-        <div id="no-data-info" class="no-data-message" style="display: none;">
-            Nenhum dado de questionário encontrado. Por favor, envie respostas via <a href="questionario.html" >questionario.html</a>.
+        <!-- Estatísticas -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="totalResponses">0</div>
+                <div class="stat-label">Total de Respostas</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="todayResponses">0</div>
+                <div class="stat-label">Hoje</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="thisWeekResponses">0</div>
+                <div class="stat-label">Esta Semana</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="thisMonthResponses">0</div>
+                <div class="stat-label">Este Mês</div>
+            </div>
         </div>
 
-        <button class="clear-data-btn" id="clearDataBtn">Limpar Todos os Dados</button>
+        <!-- Tabela de Respostas -->
+        <div class="content-section">
+            <h2 class="section-title">📋 Respostas do Formulário</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>📅 Data/Hora</th>
+                            <th>👤 Nome</th>
+                            <th>📧 Email</th>
+                            <th>📱 Telefone</th>
+                            <th>💬 Mensagem</th>
+                        </tr>
+                    </thead>
+                    <tbody id="responsesTableBody">
+                        <tr>
+                            <td colspan="5" class="loading">Carregando dados...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
-    <footer>
-        <p>&copy; 2025 E=IE 4.0. Todos os direitos reservados. Instrutor: Diogo Paes da Costa.</p>
-    </footer>
-
     <script>
-        // Função para verificar o token de autenticação ao carregar a página
-        document.addEventListener('DOMContentLoaded', function() {
-            const isAuthenticated = localStorage.getItem('adminAuthenticated');
-            if (isAuthenticated !== 'true') {
-                // Se não estiver autenticado, redireciona para a página de login
+        // Verificar se está logado
+        function checkAuth() {
+            const isLoggedIn = localStorage.getItem('adminLoggedIn');
+            if (!isLoggedIn || isLoggedIn !== 'true') {
+                alert('Acesso negado! Você precisa fazer login.');
                 window.location.href = 'administracao.html';
-            } else {
-                // Se autenticado, carrega os dados
-                loadResponses();
+                return false;
             }
-        });
+            return true;
+        }
 
+        // Logout
+        function logout() {
+            if (confirm('Deseja realmente sair?')) {
+                localStorage.removeItem('adminLoggedIn');
+                window.location.href = 'administracao.html';
+            }
+        }
+
+        // URL do seu Google Apps Script para buscar dados
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyTAlyTLv9hQPrL4aWPKp9dN36F0qnGNhZdHi2gJv7JeHzf6YUiTKHdLKXe6sOHoHRWpQ/exec';
+
+        // Carregar respostas via JSONP
         function loadResponses() {
-            // URL ATUALIZADA DO GOOGLE APPS SCRIPT PARA OS DADOS DO QUESTIONÁRIO
-            // MANTENHA ESTA URL ORIGINAL DO SEU GOOGLE APPS SCRIPT DE DADOS!
-            const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz2OubineepVBHoY7uTeoS_VjLrenqJ2dDe7ObNZVV88gU1jedoeQ2SQyX6zMvxmmfv/exec';
-            
-            const corpoTabela = document.getElementById('corpo-tabela');
-            const noDataInfo = document.getElementById('no-data-info');
-            
-            corpoTabela.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #4a90e2;">Carregando dados...</td></tr>';
+            const tableBody = document.getElementById('responsesTableBody');
+            tableBody.innerHTML = '<tr><td colspan="5" class="loading">Carregando dados...</td></tr>';
 
-            fetch(GOOGLE_SCRIPT_URL)
-            .then(response => response.json())
-            .then(allSubmissions => {
-                corpoTabela.innerHTML = '';
+            // Função de callback para JSONP
+            window.handleResponses = function(data) {
+                try {
+                    if (data.success && data.data && data.data.length > 0) {
+                        displayResponses(data.data);
+                        updateStatistics(data.data);
+                    } else {
+                        showEmptyState();
+                    }
+                } catch (error) {
+                    console.error('Erro ao processar dados:', error);
+                    showError();
+                }
+            };
 
-                if (allSubmissions.length === 0) {
-                    noDataInfo.style.display = 'block';
-                    document.getElementById('avgEngajamento').textContent = '0.00%';
-                    document.getElementById('avgBemEstar').textContent = '0.00%';
-                    document.getElementById('avgEstresse').textContent = '0.00%';
-                    return;
-                } else {
-                    noDataInfo.style.display = 'none';
+            // Criar script tag para JSONP
+            const script = document.createElement('script');
+            script.src = `${SCRIPT_URL}?callback=handleResponses&action=getData&_t=${Date.now()}`;
+            script.onerror = function() {
+                console.error('Erro ao carregar script');
+                showError();
+            };
+            
+            // Limpar script anterior se existir
+            const existingScript = document.querySelector('script[src*="callback=handleResponses"]');
+            if (existingScript) {
+                existingScript.remove();
+            }
+            
+            document.head.appendChild(script);
+
+            // Remove script após 30 segundos
+            setTimeout(() => {
+                if (script.parentNode) {
+                    script.remove();
+                }
+            }, 30000);
+        }
+
+        // Exibir respostas na tabela
+        function displayResponses(responses) {
+            const tableBody = document.getElementById('responsesTableBody');
+            
+            if (!responses || responses.length === 0) {
+                showEmptyState();
+                return;
+            }
+
+            let html = '';
+            responses.forEach(response => {
+                // Formatação da data
+                let formattedDate = 'Data não disponível';
+                if (response.timestamp) {
+                    try {
+                        const date = new Date(response.timestamp);
+                        formattedDate = date.toLocaleString('pt-BR');
+                    } catch (e) {
+                        formattedDate = response.timestamp;
+                    }
                 }
 
-                let totalEngajamento = 0;
-                let totalBemEstar = 0;
-                let totalEstresse = 0;
-
-                allSubmissions.forEach(submission => {
-                    const row = corpoTabela.insertCell(-1); // Usa -1 para adicionar no final
-
-                    const dateTime = new Date(submission.timestamp);
-                    const formattedDateTime = dateTime.toLocaleString('pt-BR', {
-                        day: '2-digit', month: '2-digit', year: 'numeric',
-                        hour: '2-digit', minute: '2-digit', second: '2-digit'
-                    });
-
-                    row.insertCell().textContent = submission.submissionId || 'N/A';
-                    row.insertCell().textContent = submission.userId;
-                    row.insertCell().textContent = formattedDateTime;
-                    row.insertCell().textContent = submission.engajamento.toFixed(2) + '%';
-                    row.insertCell().textContent = submission.bemEstar.toFixed(2) + '%';
-                    row.insertCell().textContent = submission.estresse.toFixed(2) + '%';
-
-                    totalEngajamento += submission.engajamento;
-                    totalBemEstar += submission.bemEstar;
-                    totalEstresse += submission.estresse;
-                });
-
-                const count = allSubmissions.length;
-                document.getElementById('avgEngajamento').textContent = (totalEngajamento / count).toFixed(2) + '%';
-                document.getElementById('avgBemEstar').textContent = (totalBemEstar / count).toFixed(2) + '%';
-                document.getElementById('avgEstresse').textContent = (totalEstresse / count).toFixed(2) + '%';
-            })
-            .catch(error => {
-                console.error('Erro ao carregar dados:', error);
-                corpoTabela.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #e74c3c;">Erro ao carregar dados. Tente recarregar a página.</td></tr>';
+                html += `
+                    <tr>
+                        <td>${formattedDate}</td>
+                        <td>${response.nome || 'N/A'}</td>
+                        <td>${response.email || 'N/A'}</td>
+                        <td>${response.telefone || 'N/A'}</td>
+                        <td>${response.mensagem || 'N/A'}</td>
+                    </tr>
+                `;
             });
+
+            tableBody.innerHTML = html;
         }
 
+        // Atualizar estatísticas
+        function updateStatistics(responses) {
+            const total = responses.length;
+            const now = new Date();
+            const today = now.toDateString();
+            
+            // Calcular data de início da semana (domingo)
+            const startOfWeek = new Date(now);
+            startOfWeek.setDate(now.getDate() - now.getDay());
+            startOfWeek.setHours(0, 0, 0, 0);
+            
+            // Calcular início do mês
+            const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+            let todayCount = 0;
+            let weekCount = 0;
+            let monthCount = 0;
+
+            responses.forEach(response => {
+                if (response.timestamp) {
+                    try {
+                        const responseDate = new Date(response.timestamp);
+                        
+                        // Contagem do dia
+                        if (responseDate.toDateString() === today) {
+                            todayCount++;
+                        }
+                        
+                        // Contagem da semana
+                        if (responseDate >= startOfWeek) {
+                            weekCount++;
+                        }
+                        
+                        // Contagem do mês
+                        if (responseDate >= startOfMonth) {
+                            monthCount++;
+                        }
+                    } catch (e) {
+                        console.warn('Data inválida:', response.timestamp);
+                    }
+                }
+            });
+
+            // Atualizar elementos
+            document.getElementById('totalResponses').textContent = total;
+            document.getElementById('todayResponses').textContent = todayCount;
+            document.getElementById('thisWeekResponses').textContent = weekCount;
+            document.getElementById('thisMonthResponses').textContent = monthCount;
+        }
+
+        // Mostrar estado vazio
+        function showEmptyState() {
+            const tableBody = document.getElementById('responsesTableBody');
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="5" class="empty-state">
+                        <div class="empty-state-icon">📝</div>
+                        <div>Nenhuma resposta encontrada</div>
+                        <div style="font-size: 0.9em; color: #999; margin-top: 10px;">
+                            As respostas do formulário aparecerão aqui
+                        </div>
+                    </td>
+                </tr>
+            `;
+            
+            // Zerar estatísticas
+            document.getElementById('totalResponses').textContent = '0';
+            document.getElementById('todayResponses').textContent = '0';
+            document.getElementById('thisWeekResponses').textContent = '0';
+            document.getElementById('thisMonthResponses').textContent = '0';
+        }
+
+        // Mostrar erro
+        function showError() {
+            const tableBody = document.getElementById('responsesTableBody');
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="5" class="error">
+                        ❌ Erro ao carregar dados. 
+                        <button class="btn btn-primary" onclick="loadResponses()" style="margin-left: 10px;">
+                            Tentar Novamente
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }
+
+        // Limpar dados
         function clearAllData() {
-            alert('Esta função limpará apenas os dados locais (apenas o que está na tela). Para limpar os dados do Google Sheets, você deve fazer isso manualmente na planilha.');
+            if (confirm('⚠️ Esta ação limpará TODOS os dados do Google Sheets.\n\nTem certeza que deseja continuar?')) {
+                // Implementar limpeza via JSONP se necessário
+                alert('🚧 Funcionalidade de limpeza deve ser implementada no Google Apps Script.\n\nPor enquanto, limpe manualmente na planilha.');
+            }
         }
 
-        document.getElementById('clearDataBtn').addEventListener('click', clearAllData);
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            if (checkAuth()) {
+                loadResponses();
+            }
+            
+            document.getElementById('clearDataBtn').addEventListener('click', clearAllData);
+        });
+
+        // Auto-refresh a cada 30 segundos
+        setInterval(function() {
+            if (document.visibilityState === 'visible') {
+                loadResponses();
+            }
+        }, 30000);
     </script>
 </body>
 </html>
