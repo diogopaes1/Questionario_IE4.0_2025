@@ -1,174 +1,191 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Administrativo</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css"> <!-- Link para o CSS global -->
+    <title>Login - JSONP</title>
     <style>
         body {
-            font-family: 'Poppins', sans-serif;
-            margin: 0;
+            font-family: Arial, sans-serif;
+            max-width: 400px;
+            margin: 50px auto;
             padding: 20px;
-            background-color: #eef2f7;
-            color: #333;
-            line-height: 1.6;
-            display: flex;
-            flex-direction: column; /* Permite que o header e o container fiquem em colunas */
-            min-height: 100vh;
-            box-sizing: border-box;
         }
-        .container {
-            max-width: 500px;
-            width: 100%;
-            background-color: #ffffff;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            border-top: 6px solid #4a90e2;
-            box-sizing: border-box;
-            text-align: center;
-            margin: 50px auto 0; /* Centraliza verticalmente e adiciona margem superior */
-            flex-grow: 1; /* Permite que o container ocupe o espaço restante */
+        .form-group {
+            margin-bottom: 15px;
         }
-        h1 {
-            color: #2c3e50;
-            font-size: 2.2em;
-            margin-bottom: 30px;
-            font-weight: 600;
-        }
-        .login-form {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        .login-form label {
-            text-align: left;
-            font-weight: 600;
-            color: #2c3e50;
+        label {
+            display: block;
             margin-bottom: 5px;
         }
-        .login-form input[type="text"],
-        .login-form input[type="password"] {
-            padding: 12px 15px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            font-size: 1.1em;
-            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
-            transition: border-color 0.3s ease;
-            width: calc(100% - 30px); /* Ajusta o padding */
+        input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
         }
-        .login-form input[type="text"]:focus,
-        .login-form input[type="password"]:focus {
-            border-color: #4a90e2;
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
-        }
-        .login-form button {
-            padding: 15px 30px;
-            background-color: #2ecc71;
+        button {
+            background: #007bff;
             color: white;
+            padding: 10px 20px;
             border: none;
-            border-radius: 8px;
-            font-size: 1.1em;
-            font-weight: 600;
+            border-radius: 4px;
             cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-            box-shadow: 0 4px 10px rgba(46, 204, 113, 0.3);
+            width: 100%;
         }
-        .login-form button:hover {
-            background-color: #28a745;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(40, 167, 69, 0.4);
+        button:hover {
+            background: #0056b3;
         }
-        #login-message {
-            margin-top: 20px;
-            font-weight: 600;
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .message {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .loading {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
         }
     </style>
 </head>
 <body>
-    <header>
-        <nav class="main-nav">
-            <a href="index.html" class="logo">E=IE 4.0</a>
-            <ul>
-                <li><a href="questionario.html">Questionário</a></li>
-                <li><a href="administracao.html">Administração</a></li>
-                <li><a href="ementa.html">Sobre o Curso</a></li>
-            </ul>
-        </nav>
-    </header>
-
-    <div class="container">
-        <h1>Acesso Administrativo</h1>
-        <form id="loginForm" class="login-form">
-            <div>
-                <label for="username">Usuário:</label>
-                <input type="text" id="username" required>
-            </div>
-            <div>
-                <label for="password">Senha:</label>
-                <input type="password" id="password" required>
-            </div>
-            <button type="submit">Entrar</button>
-            <div id="login-message"></div>
-        </form>
-    </div>
-
-    <footer>
-        <p>&copy; 2025 E=IE 4.0. Todos os direitos reservados. Instrutor: Diogo Paes da Costa.</p>
-    </footer>
+    <h2>Login com JSONP</h2>
+    
+    <form id="loginForm">
+        <div class="form-group">
+            <label for="username">Usuário:</label>
+            <input type="text" id="username" name="username" autocomplete="username" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="password">Senha:</label>
+            <input type="password" id="password" name="password" autocomplete="current-password" required>
+        </div>
+        
+        <button type="submit" id="loginBtn">Entrar</button>
+    </form>
+    
+    <div id="message"></div>
 
     <script>
-        document.getElementById('loginForm').addEventListener('submit', async function(event) {
-            event.preventDefault();
-
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const loginMessage = document.getElementById('login-message');
-
-            loginMessage.textContent = 'Verificando credenciais...';
-            loginMessage.style.color = '#4a90e2';
-
-            // URL DO GOOGLE APPS SCRIPT PARA AUTENTICAÇÃO
-            // Esta é a URL que você obteve ao implantar seu Apps Script de autenticação.
-            const AUTH_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzoDFgufMRuMjOUvkrwqI9AfZXssx1eGK37OPAjZtCioLrI-dP8gq-t9yblIuwPDGE/exec';
-
+        // URL do seu Google Apps Script
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyTAlyTLv9hot8V_e4VDkdZXZE38v2KR2QdX2xg72V4EBSGwp8D6MFG6d1QTnkJYQU/exec';
+        
+        // Contador para callbacks únicos
+        let callbackCounter = 0;
+        
+        // Função para fazer requisição JSONP
+        function makeJSONPRequest(url, callback) {
+            return new Promise((resolve, reject) => {
+                // Cria nome único para o callback
+                const callbackName = 'jsonp_callback_' + (++callbackCounter) + '_' + Date.now();
+                
+                // Cria a função callback global
+                window[callbackName] = function(data) {
+                    // Limpa
+                    delete window[callbackName];
+                    document.head.removeChild(script);
+                    resolve(data);
+                };
+                
+                // Cria script tag
+                const script = document.createElement('script');
+                script.src = url + '&callback=' + callbackName;
+                
+                // Trata erros
+                script.onerror = function() {
+                    delete window[callbackName];
+                    document.head.removeChild(script);
+                    reject(new Error('Erro na requisição JSONP'));
+                };
+                
+                // Adiciona script ao head
+                document.head.appendChild(script);
+            });
+        }
+        
+        // Função de login
+        async function login(username, password) {
             try {
-                const response = await fetch(AUTH_SCRIPT_URL, {
-                    method: 'POST',
-                    // mode: 'no-cors', // REMOVIDO: Apps Script já gerencia CORS
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ username, password })
+                showMessage('Fazendo login...', 'loading');
+                
+                // Constrói URL com parâmetros
+                const params = new URLSearchParams({
+                    username: username,
+                    password: password
                 });
-
-                // Verifica se a resposta HTTP foi bem-sucedida (status 200-299)
-                if (!response.ok) {
-                    throw new Error(`Erro de rede ou no servidor: ${response.status} ${response.statusText}`);
-                }
-
-                // Tenta ler a resposta como JSON
-                const responseData = await response.json();
-
-                if (responseData.success) {
-                    loginMessage.textContent = 'Login bem-sucedido! Redirecionando...';
-                    loginMessage.style.color = '#2ecc71';
-                    localStorage.setItem('adminAuthenticated', 'true'); // Armazena estado de autenticação
-                    window.location.href = 'administracao_content.html'; // Redireciona para a página de conteúdo
+                
+                const url = SCRIPT_URL + '?' + params.toString();
+                
+                // Faz requisição JSONP
+                const result = await makeJSONPRequest(url);
+                
+                if (result.success) {
+                    showMessage(`✅ ${result.message}`, 'success');
+                    console.log('Login bem-sucedido:', result);
+                    
+                    // Aqui você pode redirecionar ou fazer outras ações
+                    // window.location.href = '/dashboard.html';
+                    
                 } else {
-                    loginMessage.textContent = 'Usuário ou senha incorretos.';
-                    loginMessage.style.color = '#e74c3c';
+                    showMessage(`❌ ${result.message}`, 'error');
                 }
-
+                
             } catch (error) {
-                console.error('Erro na requisição ou processamento:', error);
-                loginMessage.textContent = 'Erro ao tentar logar. Verifique sua conexão ou tente novamente.';
-                loginMessage.style.color = '#e74c3c';
+                console.error('Erro no login:', error);
+                showMessage('❌ Erro de conexão. Tente novamente.', 'error');
+            }
+        }
+        
+        // Função para mostrar mensagens
+        function showMessage(text, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = text;
+            messageDiv.className = 'message ' + type;
+        }
+        
+        // Event listener do formulário
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            
+            if (!username || !password) {
+                showMessage('❌ Preencha todos os campos', 'error');
+                return;
+            }
+            
+            // Desabilita botão durante login
+            const loginBtn = document.getElementById('loginBtn');
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Entrando...';
+            
+            try {
+                await login(username, password);
+            } finally {
+                // Reabilita botão
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Entrar';
             }
         });
+        
+        // Credenciais de teste
+        console.log('💡 Credenciais de teste: admin / 123456');
     </script>
 </body>
 </html>
