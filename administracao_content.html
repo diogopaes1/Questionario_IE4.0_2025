@@ -171,6 +171,88 @@
             color: #4a90e2;
             border-color: #bee3f8;
         }
+
+        /* NOVOS ESTILOS PARA O MODAL DE SENHA */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000; /* Garante que o modal fique por cima de tudo */
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+            text-align: center;
+            max-width: 450px;
+            width: 90%;
+            animation: fadeIn 0.3s ease-out; /* Adiciona uma animação suave */
+        }
+
+        .modal-content h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .modal-content p {
+            color: #555;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+        }
+
+        .modal-password-input {
+            width: calc(100% - 20px); /* Ajusta a largura considerando o padding */
+            padding: 12px 10px;
+            margin-bottom: 25px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            font-size: 1.1em;
+            outline: none; /* Remove o contorno padrão no foco */
+            transition: border-color 0.3s ease; /* Transição suave na borda */
+        }
+
+        .modal-password-input:focus {
+            border-color: #4a90e2; /* Cor da borda no foco */
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px; /* Espaço entre os botões */
+        }
+
+        /* Reutiliza estilos de botão existentes, garantindo que sejam flex items */
+        .modal-buttons .btn-primary,
+        .modal-buttons .btn-danger {
+            padding: 10px 25px;
+            font-size: 1em;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s ease, opacity 0.2s ease;
+        }
+
+        .modal-error-message {
+            color: #e74c3c;
+            margin-top: 15px;
+            font-size: 0.95em;
+            font-weight: 500;
+        }
+
+        /* Animação para o modal */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body>
@@ -179,7 +261,7 @@
         <div class="navigation-links-group">
             <a href="index.html" class="navigation-link">🏠 Home</a>
             <a href="questionario.html" class="navigation-link">← Voltar ao Questionário</a>
-            <button class="refresh-btn" onclick="loadResponses()">�� Atualizar Dados</button>
+            <button class="refresh-btn" onclick="loadResponses()">🔄 Atualizar Dados</button>
         </div>
         
         <h1>Administração de Respostas do Questionário</h1>
@@ -224,12 +306,33 @@
         <button class="clear-data-btn" id="clearDataBtn">Limpar Todos os Dados</button>
     </div>
 
+    <!-- Custom Password Modal - Adicionado fora do .container para facilitar o posicionamento -->
+    <div id="passwordModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <h2>Confirmar Exclusão</h2>
+            <p>Por favor, digite sua senha de segurança para continuar:</p>
+            <input type="password" id="modalPasswordInput" class="modal-password-input" placeholder="Senha de segurança">
+            <div class="modal-buttons">
+                <button id="modalConfirmBtn" class="btn-primary">Confirmar</button>
+                <button id="modalCancelBtn" class="btn-danger">Cancelar</button>
+            </div>
+            <p id="modalErrorMessage" class="modal-error-message" style="display: none;"></p>
+        </div>
+    </div>
+
     <script>
         // URL ATUALIZADA DO GOOGLE APPS SCRIPT para LEITURA e ESCRITA (se configurado)
         const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz2OubineepVBHoY7uTeoS_VjLrenqJ2dDe7ObNZVV88gU1jedoeQ2SQyX6zMvxmmfv/exec';
         
         // Senha de segurança para limpar dados (NÃO DEVE SER INFORMADA)
         const SECURITY_PASSWORD = '12345'; 
+
+        // Referências aos elementos do modal
+        const passwordModal = document.getElementById('passwordModal');
+        const modalPasswordInput = document.getElementById('modalPasswordInput');
+        const modalConfirmBtn = document.getElementById('modalConfirmBtn');
+        const modalCancelBtn = document.getElementById('modalCancelBtn');
+        const modalErrorMessage = document.getElementById('modalErrorMessage');
 
         function displayStatusMessage(message, type) {
             const statusDiv = document.getElementById('status-message');
@@ -245,12 +348,13 @@
             document.getElementById('status-message').style.display = 'none';
         }
 
+        // Função para carregar os dados da planilha
         async function loadResponses() {
             const corpoTabela = document.getElementById('corpo-tabela');
             const noDataInfo = document.getElementById('no-data-info');
             
             corpoTabela.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #4a90e2;">Carregando dados...</td></tr>';
-            hideStatusMessage(); // Hide any previous status messages
+            hideStatusMessage(); // Esconde mensagens de status anteriores
 
             try {
                 const response = await fetch(GOOGLE_SCRIPT_URL);
@@ -304,41 +408,25 @@
             }
         }
 
-        async function clearAllData() {
-            const confirmation = confirm('ATENÇÃO: Esta ação apagará TODOS os dados do questionário na planilha do Google Sheets. TEM CERTEZA?');
-            if (!confirmation) {
-                displayStatusMessage('Limpeza de dados cancelada pelo usuário.', ''); // Clear previous status
-                return;
-            }
-
-            const password = prompt('Por favor, digite a senha de segurança para confirmar a limpeza dos dados:');
+        // Nova função para lidar com a limpeza dos dados, incluindo a verificação da senha
+        async function handleClearData(password) {
+            // Verifica a senha
             if (password !== SECURITY_PASSWORD) {
-                displayStatusMessage('Senha incorreta. A limpeza dos dados foi cancelada.', 'error');
+                modalErrorMessage.textContent = 'Senha incorreta. Tente novamente.';
+                modalErrorMessage.style.display = 'block';
+                modalPasswordInput.value = ''; // Limpa o campo para nova tentativa
+                modalPasswordInput.focus();
                 return;
             }
 
+            passwordModal.style.display = 'none'; // Esconde o modal de senha
             displayStatusMessage('Limpeza em andamento... Aguarde.', 'loading');
 
-            // URL para limpar dados - requer que seu Google Apps Script esteja configurado para lidar com 'action=clearData'
-            // Exemplo de como seu GAS 'doPost' pode receber isso:
-            // function doPost(e) {
-            //   var request = JSON.parse(e.postData.contents);
-            //   if (request.action === 'clearData') {
-            //     // Lógica para apagar todas as linhas da sua planilha, exceto o cabeçalho
-            //     var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('NOME_DA_SUA_PLANILHA');
-            //     if (sheet.getLastRow() > 1) { // Garante que não apaga o cabeçalho
-            //       sheet.deleteRows(2, sheet.getLastRow() - 1);
-            //     }
-            //     return ContentService.createTextOutput(JSON.stringify({status: 'success', message: 'Dados apagados.'})).setMimeType(ContentService.MimeType.JSON);
-            //   }
-            //   // ... (seu código existente para outras ações POST, como submissão de questionário)
-            // }
-
             try {
-                // Enviando uma requisição POST com a ação 'clearData'
+                // Requisição POST para o Google Apps Script para limpar os dados
                 const response = await fetch(GOOGLE_SCRIPT_URL, {
                     method: 'POST',
-                    mode: 'no-cors', // Necessário para evitar problemas de CORS com Google Apps Script
+                    mode: 'no-cors', // Importante para evitar problemas de CORS com Google Apps Script
                     headers: {
                         'Content-Type': 'application/json',
                     },
@@ -346,17 +434,50 @@
                 });
 
                 // Devido ao 'no-cors', não podemos ler a resposta diretamente.
-                // Assumimos que a requisição foi enviada com sucesso.
+                // Assumimos que a requisição foi enviada com sucesso ao GAS.
                 displayStatusMessage('Requisição de limpeza enviada! Os dados devem ser apagados na planilha em breve. Recarregando dados...', '');
                 setTimeout(() => {
                     loadResponses(); // Recarrega os dados para mostrar o estado atualizado
                 }, 2000); // Dá um tempo para o GAS processar
-                
+
             } catch (error) {
                 console.error('Erro ao enviar requisição de limpeza:', error);
                 displayStatusMessage('Erro ao tentar limpar os dados. Verifique sua conexão e o Google Apps Script.', 'error');
             }
         }
+
+        // Função chamada pelo botão "Limpar Todos os Dados"
+        async function clearAllData() {
+            const confirmation = confirm('ATENÇÃO: Esta ação apagará TODOS os dados do questionário na planilha do Google Sheets. TEM CERTEZA?');
+            if (!confirmation) {
+                displayStatusMessage('Limpeza de dados cancelada pelo usuário.', '');
+                return;
+            }
+
+            // Exibe o modal de senha customizado
+            modalPasswordInput.value = ''; // Limpa qualquer input anterior
+            modalErrorMessage.style.display = 'none'; // Esconde mensagens de erro anteriores
+            passwordModal.style.display = 'flex'; // Torna o modal visível (display: flex para centralizar)
+            modalPasswordInput.focus(); // Coloca o foco no campo de senha
+        }
+
+        // Event listeners para os botões do modal de senha
+        modalConfirmBtn.addEventListener('click', () => {
+            handleClearData(modalPasswordInput.value);
+        });
+
+        modalCancelBtn.addEventListener('click', () => {
+            passwordModal.style.display = 'none'; // Esconde o modal
+            displayStatusMessage('Limpeza de dados cancelada pelo usuário.', '');
+        });
+
+        // Permite que a tecla Enter submeta a senha no modal
+        modalPasswordInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault(); // Evita a submissão de formulário padrão
+                handleClearData(modalPasswordInput.value);
+            }
+        });
 
         // Inicialização ao carregar a página
         document.addEventListener('DOMContentLoaded', loadResponses);
