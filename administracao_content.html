@@ -7,20 +7,21 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css"> <!-- Link para o CSS global -->
     <style>
+        /* Estilos específicos da página de administração, podem complementar ou sobrescrever o style.css */
         body {
             font-family: 'Poppins', sans-serif;
             margin: 0;
-            padding: 20px;
+            padding: 0; /* Removido padding para permitir que header/footer ocupem 100% da largura */
             background-color: #f5f7fa;
             color: #333;
             line-height: 1.6;
             display: flex;
-            justify-content: center;
-            align-items: flex-start;
+            flex-direction: column; /* Para organizar header, content e footer em coluna */
             min-height: 100vh;
             box-sizing: border-box;
         }
-        .container {
+        /* O .container principal do style.css já cuida da margem e largura */
+        .admin-content-container { /* Novo nome para o container interno, para evitar conflito com .container do style.css */
             max-width: 1200px;
             width: 100%;
             background-color: #ffffff;
@@ -29,6 +30,8 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
             border-top: 6px solid #28a745;
             box-sizing: border-box;
+            margin: 30px auto; /* Para centralizar abaixo do header */
+            flex-grow: 1; /* Permite que ocupe o espaço disponível entre header e footer */
         }
         h1 {
             color: #2c3e50;
@@ -152,20 +155,20 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <nav class="main-nav">
-                <a href="index.html" class="logo">E=IE 4.0</a>
-                <ul>
-                    <li><a href="questionario.html">Questionário</a></li>
-                    <li><a href="administracao.html">Administração</a></li>
-                    <li><a href="ementa.html">Sobre o Curso</a></li>
-                </ul>
-            </nav>
-        </header>
+    <header>
+        <nav class="main-nav">
+            <a href="index.html" class="logo">E=IE 4.0</a>
+            <ul>
+                <li><a href="questionario.html">Questionário</a></li>
+                <li><a href="administracao.html">Administração</a></li>
+                <li><a href="ementa.html">Sobre o Curso</a></li>
+            </ul>
+        </nav>
+    </header>
 
+    <div class="admin-content-container"> <!-- Alterado de .container para .admin-content-container -->
         <a href="questionario.html" class="navigation-link">← Voltar ao Questionário</a>
-        <button class="refresh-btn" onclick="loadResponses()">🔄 Atualizar Dados</button>
+        <button class="refresh-btn" onclick="loadResponses()">�� Atualizar Dados</button>
         
         <h1>Administração de Respostas do Questionário</h1>
 
@@ -206,6 +209,10 @@
         <button class="clear-data-btn" id="clearDataBtn">Limpar Todos os Dados</button>
     </div>
 
+    <footer>
+        <p>&copy; 2025 E=IE 4.0. Todos os direitos reservados. Instrutor: Diogo Paes da Costa.</p>
+    </footer>
+
     <script>
         // Função para verificar o token de autenticação ao carregar a página
         document.addEventListener('DOMContentLoaded', function() {
@@ -220,7 +227,8 @@
         });
 
         function loadResponses() {
-            // URL ATUALIZADA DO GOOGLE APPS SCRIPT
+            // URL ATUALIZADA DO GOOGLE APPS SCRIPT PARA OS DADOS DO QUESTIONÁRIO
+            // MANTENHA ESTA URL ORIGINAL DO SEU GOOGLE APPS SCRIPT DE DADOS!
             const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz2OubineepVBHoY7uTeoS_VjLrenqJ2dDe7ObNZVV88gU1jedoeQ2SQyX6zMvxmmfv/exec';
             
             const corpoTabela = document.getElementById('corpo-tabela');
@@ -248,7 +256,7 @@
                 let totalEstresse = 0;
 
                 allSubmissions.forEach(submission => {
-                    const row = corpoTabela.insertRow();
+                    const row = corpoTabela.insertCell(-1); // Usa -1 para adicionar no final
 
                     const dateTime = new Date(submission.timestamp);
                     const formattedDateTime = dateTime.toLocaleString('pt-BR', {
@@ -280,11 +288,9 @@
         }
 
         function clearAllData() {
-            alert('Esta função limpará apenas os dados locais. Para limpar os dados do Google Sheets, você deve fazer isso manualmente na planilha.');
+            alert('Esta função limpará apenas os dados locais (apenas o que está na tela). Para limpar os dados do Google Sheets, você deve fazer isso manualmente na planilha.');
         }
 
-        // Remova a linha document.addEventListener('DOMContentLoaded', loadResponses);
-        // Agora o loadResponses é chamado após a verificação de autenticação.
         document.getElementById('clearDataBtn').addEventListener('click', clearAllData);
     </script>
 </body>
