@@ -121,8 +121,8 @@
             font-size: 0.85em;
             color: #777;
             position: relative; /* Para posicionar as frases */
-            padding: 0 6px;
-            transform: translateX(-29px); /* Move tudo 5px para esquerda */
+            padding: 0 6px; /*quanto maior o 6px, mais pra dentro (mais proximas) ficam as extremindades nueros!*/
+            transform: translateX(-27px); /* Move tudo 5px para esquerda */
         }
         .slider-labels span {
     flex-grow: 1;
@@ -138,7 +138,7 @@
             position: absolute;
             white-space: nowrap;
             top: -45px; /* Ajuste para não sobrepor */
-            transform: translateX(29px); /* ← COMPENSA o movimento do pai */
+            transform: translateX(27px); /* ← COMPENSA o movimento do pai */
         }
         .slider-labels .label-extreme.right {
             color: #2ecc71; /* Cor para Concordo Totalmente */
