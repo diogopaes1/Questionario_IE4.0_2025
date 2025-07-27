@@ -191,12 +191,12 @@
             }
         });
         
-        // Verificar se já está logado ao carregar a página
-        window.addEventListener('load', function() {
-            if (localStorage.getItem('adminLoggedIn') === 'true') {
-                window.location.href = 'administracao_content.html';
-            }
-        });
+        // REMOVIDO: O BLOCO ABAIXO FOI REMOVIDO PARA FORÇAR SEMPRE O LOGIN
+        // window.addEventListener('load', function() {
+        //     if (localStorage.getItem('adminLoggedIn') === 'true') {
+        //         window.location.href = 'administracao_content.html';
+        //     }
+        // });
     </script>
 </body>
 </html>
