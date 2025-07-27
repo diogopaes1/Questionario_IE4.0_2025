@@ -121,6 +121,7 @@
             font-size: 0.85em;
             color: #777;
             position: relative; /* Para posicionar as frases */
+            padding: 0 12px; /* Adiciona padding para alinhar com o thumb */
         }
         .slider-labels span {
             flex-grow: 1;
@@ -132,16 +133,17 @@
             color: #e74c3c; /* Cor para Discordo Totalmente */
             position: absolute;
             white-space: nowrap;
-            top: -20px; /* Ajuste para não sobrepor */
+            top: -25px; /* Ajusta altura */
+            font-size: 0.9em; /* Reduz tamanho da fonte */
         }
         .slider-labels .label-extreme.right {
             color: #2ecc71; /* Cor para Concordo Totalmente */
-            right: 0;
+            right: -10px; /* Ajusta posição da direita */
             text-align: right;
         }
         .slider-labels .label-extreme.left {
-            left: 0;
-            text-align: left;
+        left: -10px; /* Ajusta posição da esquerda */
+        text-align: left;
         }
         .id-input-group {
             margin-top: 20px;
