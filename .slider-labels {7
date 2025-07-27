@@ -121,7 +121,7 @@
             font-size: 0.85em;
             color: #777;
             position: relative; /* Para posicionar as frases */
-            padding: 0 12px; /* Adiciona padding para alinhar com o thumb */
+            padding: 0 8px; /* Adiciona padding para alinhar com o thumb */
             transform: translateX(-40px); /* Move tudo 5px para esquerda */
         }
         .slider-labels span {
