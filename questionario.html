@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Questionário: Engajamento, Bem-Estar e Estresse</title>
+    <title>Questionário: Engajamento, Bem-Estar e Tranquilidade</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css"> <!-- Link para o CSS global -->
     <!-- Incluindo Chart.js para o gráfico radar -->
@@ -293,14 +293,14 @@
                 <a href="index.html" class="logo">E=IE 4.0</a>
                 <ul>
                     <li><a href="questionario.html">Questionário</a></li>
-                    <li><a href="informacoes.html">Informações</a></li> <!-- ADICIONADO AQUI -->
-                    <li><a href="ementa.html">Curso</a></li>
+                    <li><a href="informacoes.html">Informações</a></li>
                     <li><a href="administracao.html">Administração</a></li>
+                    <li><a href="ementa.html">Sobre o Curso</a></li>
                 </ul>
             </nav>
         </header>
 
-        <h1>Questionário: Engajamento, Bem-Estar e Estresse</h1>
+        <h1>Questionário: Engajamento, Bem-Estar e Tranquilidade</h1>
         <p class="info-header">
             Por favor, avalie o quanto você se identifica com cada situação arrastando a barra móvel.
             Sua resposta é importante para nos ajudar a compreender e melhorar o ambiente educacional.
@@ -341,8 +341,8 @@
                     <span id="personal-bemEstar-score">0.00%</span>
                 </div>
                 <div class="score-item">
-                    <span>Estresse:</span>
-                    <span id="personal-estresse-score">0.00%</span>
+                    <span>Tranquilidade:</span>
+                    <span id="personal-tranquilidade-score">0.00%</span>
                 </div>
             </div>
             <div class="chart-container">
@@ -364,10 +364,10 @@
             { id: 'q6', text: 'Tenho tido uma boa noite de sono na maioria das vezes.', category: 'bemEstar' },
             { id: 'q7', text: 'Sinto que estou aprendendo coisas novas e crescendo pessoalmente.', category: 'bemEstar' },
             { id: 'q8', text: 'Tenho me sentido otimista em relação ao meu futuro na escola.', category: 'bemEstar' },
-            { id: 'q9', text: 'Sinto que as demandas da escola excedem meus recursos para lidar com elas.', category: 'estresse' },
-            { id: 'q10', text: 'Frequentemente me sinto cansado(a) ou esgotado(a) por causa da escola.', category: 'estresse' },
-            { id: 'q11', text: 'Tenho dificuldade em relaxar ou desligar dos problemas da escola.', category: 'estresse' },
-            { id: 'q12', text: 'Pequenos problemas da escola me deixam muito irritado(a) ou ansioso(a).', category: 'estresse' }
+            { id: 'q9', text: 'Consigo lidar facilmente com as demandas da escola sem me sentir sobrecarregado(a).', category: 'tranquilidade' },
+            { id: 'q10', text: 'Sinto-me descansado(a) e com energia renovada após as atividades escolares.', category: 'tranquilidade' },
+            { id: 'q11', text: 'Consigo relaxar e desligar facilmente dos problemas da escola.', category: 'tranquilidade' },
+            { id: 'q12', text: 'Pequenos problemas da escola não me afetam significativamente ou me deixam ansioso(a).', category: 'tranquilidade' }
         ];
 
         let currentResponses = {};
@@ -469,7 +469,7 @@
             const categoryScores = {
                 engajamento: [],
                 bemEstar: [],
-                estresse: []
+                tranquilidade: [] // ALTERADO: estresse -> tranquilidade
             };
             const categoryMap = JSON.parse(localStorage.getItem('questionCategories'));
 
@@ -507,14 +507,14 @@
         function displayPersonalResults(scores) {
             document.getElementById('personal-engajamento-score').textContent = scores.engajamento.toFixed(2) + '%';
             document.getElementById('personal-bemEstar-score').textContent = scores.bemEstar.toFixed(2) + '%';
-            document.getElementById('personal-estresse-score').textContent = scores.estresse.toFixed(2) + '%';
+            document.getElementById('personal-tranquilidade-score').textContent = scores.tranquilidade.toFixed(2) + '%'; // ALTERADO
 
             // Dados para o gráfico radar
             const data = {
-                labels: ['Engajamento', 'Bem-Estar', 'Estresse'],
+                labels: ['Engajamento', 'Bem-Estar', 'Tranquilidade'], // ALTERADO: Estresse -> Tranquilidade
                 datasets: [{
                     label: 'Sua Pontuação',
-                    data: [scores.engajamento, scores.bemEstar, scores.estresse],
+                    data: [scores.engajamento, scores.bemEstar, scores.tranquilidade], // ALTERADO
                     fill: true,
                     backgroundColor: 'rgba(74, 144, 226, 0.2)', // Azul para preenchimento
                     borderColor: 'rgb(74, 144, 226)', // Azul para borda
@@ -604,7 +604,7 @@
                 timestamp: new Date().toISOString(),
                 engajamento: parseFloat(scores.engajamento.toFixed(2)),
                 bemEstar: parseFloat(scores.bemEstar.toFixed(2)),
-                estresse: parseFloat(scores.estresse.toFixed(2))
+                tranquilidade: parseFloat(scores.tranquilidade.toFixed(2)) // ALTERADO: estresse -> tranquilidade
             };
 
             // URL ATUALIZADA DO GOOGLE APPS SCRIPT (MANTIDA)
