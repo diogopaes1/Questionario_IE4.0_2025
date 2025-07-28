@@ -410,7 +410,7 @@
 
         <!-- Seção de Estatísticas -->
         <div class="stats-section" id="statsSection" style="display: none;">
-            <h3 style="text-align: center; color: #2c3e50; margin-bottom: 20px;">�� Análise Detalhada</h3>
+            <h3 style="text-align: center; color: #2c3e50; margin-bottom: 20px;">📈 Análise Detalhada</h3>
             <div class="stats-grid" id="statsGrid">
                 <!-- Estatísticas serão inseridas aqui dinamicamente -->
             </div>
@@ -436,6 +436,7 @@
         // Variáveis globais
         let currentDiagnosis = null;
         let conversationHistory = [];
+        let responseCounter = 0; // Para variar as respostas
 
         function getLevel(score) {
             if (score < 50) return 'baixo';
@@ -616,6 +617,7 @@
             // Limpar mensagens
             document.getElementById('interactiveMessages').innerHTML = '';
             conversationHistory = [];
+            responseCounter = 0;
         }
 
         function generateWelcomeMessage() {
@@ -691,7 +693,9 @@ O que você gostaria de explorar primeiro?`;
                 conversationHistory.push({ role: 'assistant', content: response });
             } catch (error) {
                 console.error('Erro ao chamar API:', error);
-                addInteractiveMessage('assistant', 'Desculpe, ocorreu um erro ao processar sua mensagem. Tente novamente em alguns instantes.');
+                const fallbackResponse = generateFallbackResponse(message);
+                addInteractiveMessage('assistant', fallbackResponse);
+                conversationHistory.push({ role: 'assistant', content: fallbackResponse });
             }
             
             // Reabilitar botão
@@ -723,6 +727,7 @@ Diretrizes para suas respostas:
 6. Limite suas respostas a 300-400 palavras
 7. Use formatação markdown quando apropriado (**negrito**, *itálico*)
 8. Foque em soluções construtivas e baseadas em evidências
+9. Varie suas respostas, evite repetições
 
 Responda em português brasileiro.`;
 
@@ -738,11 +743,11 @@ Responda em português brasileiro.`;
                 const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
                     method: 'POST',
                     headers: {
-                        'Authorization': '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', // Substitua pelo seu token do Groq
+                        'Authorization': 'Bearer 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',
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        model: 'llama3-8b-8192', // Modelo gratuito do Groq
+                        model: 'llama3-8b-8192',
                         messages: messages,
                         max_tokens: 500,
                         temperature: 0.7
@@ -750,97 +755,269 @@ Responda em português brasileiro.`;
                 });
 
                 if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Erro na API:', response.status, errorText);
                     throw new Error(`Erro na API: ${response.status}`);
                 }
 
                 const data = await response.json();
+                
+                if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+                    throw new Error('Resposta da API inválida');
+                }
+                
                 return data.choices[0].message.content;
                 
             } catch (error) {
                 console.error('Erro na chamada da API:', error);
-                
-                // Fallback: resposta baseada em regras simples
-                return generateFallbackResponse(userMessage);
+                throw error; // Re-throw para usar fallback
             }
         }
 
         function generateFallbackResponse(userMessage) {
             const message = userMessage.toLowerCase();
+            responseCounter++;
             
+            // Respostas específicas para livros
             if (message.includes('livro') || message.includes('leitura') || message.includes('ler')) {
-                return `📚 **Recomendações de Leitura para Desenvolvimento Emocional:**
+                const bookResponses = [
+                    `📚 **Recomendações de Leitura Personalizadas:**
+
+**Baseado no seu perfil emocional:**
+• "Inteligência Emocional 2.0" - Travis Bradberry
+• "O Cérebro que se Transforma" - Norman Doidge
+• "Mindfulness: Como Encontrar a Paz em um Mundo Frenético" - Mark Williams
 
 **Para Engajamento:**
-• "Mindset: A Nova Psicologia do Sucesso" - Carol Dweck
-• "Flow: A Psicologia da Experiência Ótima" - Mihaly Csikszentmihalyi
+• "Grit: O Poder da Paixão e da Perseverança" - Angela Duckworth
+• "Drive: A Surpreendente Verdade sobre o que nos Motiva" - Daniel Pink
 
-**Para Bem-Estar:**
-• "A Ciência do Bem-Estar" - Sonja Lyubomirsky
-• "Inteligência Emocional" - Daniel Goleman
+**Próximo passo:** Escolha um livro e dedique 15 minutos diários à leitura. Qual tema mais te interessa?`,
 
-**Para Tranquilidade:**
-• "O Poder do Agora" - Eckhart Tolle
-• "Mindfulness para Iniciantes" - Jon Kabat-Zinn
+                    `📖 **Biblioteca do Desenvolvimento Emocional:**
 
-Qual área você gostaria de aprofundar mais?`;
+**Clássicos Essenciais:**
+• "Como Fazer Amigos e Influenciar Pessoas" - Dale Carnegie
+• "Os 7 Hábitos das Pessoas Altamente Eficazes" - Stephen Covey
+• "Fluir: A Psicologia da Experiência Ótima" - Mihaly Csikszentmihalyi
+
+**Para seu perfil específico:**
+• "Autorregulação Emocional" - Matthew McKay
+• "A Arte da Felicidade" - Dalai Lama
+
+**Dica prática:** Crie um diário de leitura para anotar insights importantes!`
+                ];
+                
+                return bookResponses[responseCounter % bookResponses.length];
             }
             
+            // Respostas específicas para atividades
             if (message.includes('atividade') || message.includes('exercício') || message.includes('prática')) {
-                return `🏃‍♀️ **Atividades Práticas Recomendadas:**
+                const activityResponses = [
+                    `🏃‍♀️ **Plano de Atividades Personalizado (Semana 1):**
 
-**Para melhorar Engajamento:**
-• Definir metas SMART semanais
-• Técnica Pomodoro para foco
-• Journaling de conquistas diárias
+**Segunda a Sexta:**
+• 5 min de respiração consciente ao acordar
+• Técnica Pomodoro para tarefas importantes
+• 3 gratidões antes de dormir
 
-**Para aumentar Bem-Estar:**
-• Meditação de 10 minutos diários
-• Exercícios de gratidão
-• Conexões sociais significativas
+**Fim de semana:**
+• Caminhada de 30 min na natureza
+• Atividade criativa (desenho, música, escrita)
+• Conexão social significativa
 
-**Para desenvolver Tranquilidade:**
-• Respiração 4-7-8 para relaxamento
-• Caminhadas na natureza
-• Práticas de mindfulness
+**Foco especial:** Baseado no seu diagnóstico, pratique técnicas de autorregulação emocional diariamente.`,
 
-Qual atividade você gostaria de começar hoje?`;
+                    `🎯 **Rotina de Desenvolvimento Emocional:**
+
+**Manhã (10 min):**
+• Meditação guiada ou mindfulness
+• Definição de 3 prioridades do dia
+• Afirmação positiva personalizada
+
+**Tarde (5 min):**
+• Check-in emocional: "Como estou me sentindo?"
+• Técnica de respiração 4-7-8 se necessário
+
+**Noite (10 min):**
+• Reflexão sobre o dia
+• Exercício de gratidão
+• Planejamento do dia seguinte
+
+**Qual período você gostaria de começar primeiro?**`
+                ];
+                
+                return activityResponses[responseCounter % activityResponses.length];
             }
             
-            // Resposta padrão baseada no diagnóstico
+            // Respostas específicas para técnicas
+            if (message.includes('técnica') || message.includes('método') || message.includes('estratégia')) {
+                const techniqueResponses = [
+                    `🧘‍♂️ **Técnicas Avançadas de Autorregulação:**
+
+**Para Momentos de Estresse:**
+• Técnica 5-4-3-2-1: 5 coisas que vê, 4 que ouve, 3 que toca, 2 que cheira, 1 que saboreia
+• Respiração quadrada: 4 tempos para inspirar, reter, expirar, reter
+• Visualização de lugar seguro
+
+**Para Aumentar Foco:**
+• Técnica Pomodoro modificada (25 min foco + 5 min pausa)
+• Meditação de atenção plena
+• Eliminação de distrações digitais
+
+**Experimente uma técnica hoje e me conte como foi!**`,
+
+                    `⚡ **Estratégias de Desenvolvimento Rápido:**
+
+**Técnica do "Reset Emocional" (2 min):**
+1. Pare o que está fazendo
+2. Respire profundamente 5 vezes
+3. Identifique a emoção presente
+4. Escolha conscientemente sua próxima ação
+
+**Método "STOP":**
+• **S**top - Pare
+• **T**ake a breath - Respire
+• **O**bserve - Observe
+• **P**roceed - Prossiga conscientemente
+
+**Qual situação específica você gostaria de trabalhar?**`
+                ];
+                
+                return techniqueResponses[responseCounter % techniqueResponses.length];
+            }
+            
+            // Respostas específicas para planos
+            if (message.includes('plano') || message.includes('desenvolvimento') || message.includes('crescimento')) {
+                const planResponses = [
+                    `📈 **Plano de Desenvolvimento Personalizado (30 dias):**
+
+**Semana 1-2: Fundação**
+• Estabelecer rotina de autocuidado
+• Praticar mindfulness diário
+• Identificar gatilhos emocionais
+
+**Semana 3-4: Expansão**
+• Implementar técnicas avançadas
+• Criar rede de apoio
+• Definir metas específicas
+
+**Indicadores de sucesso:**
+• Aumento de 15% nos seus scores mais baixos
+• Maior consciência emocional
+• Redução de episódios de estresse
+
+**Por onde você gostaria de começar?**`,
+
+                    `🎯 **Roadmap de Crescimento Emocional:**
+
+**Fase 1: Autoconhecimento (Dias 1-10)**
+• Diário emocional diário
+• Identificação de padrões
+• Mapeamento de valores pessoais
+
+**Fase 2: Desenvolvimento (Dias 11-20)**
+• Prática de técnicas específicas
+• Desafios graduais de zona de conforto
+• Feedback e ajustes
+
+**Fase 3: Integração (Dias 21-30)**
+• Consolidação de hábitos
+• Planejamento de longo prazo
+• Celebração de conquistas
+
+**Qual fase ressoa mais com você agora?**`
+                ];
+                
+                return planResponses[responseCounter % planResponses.length];
+            }
+            
+            // Resposta padrão variada baseada no diagnóstico
             if (currentDiagnosis) {
                 const { engajamento, bemEstar, tranquilidade } = currentDiagnosis;
                 const lowest = Math.min(engajamento, bemEstar, tranquilidade);
                 
                 let focus = '';
-                if (lowest === engajamento) focus = 'engajamento';
-                else if (lowest === bemEstar) focus = 'bem-estar';
-                else focus = 'tranquilidade';
+                let specificAdvice = '';
                 
-                return `Com base no seu diagnóstico, sugiro focarmos primeiro no **${focus}**, que apresenta a menor pontuação.
-
-**Estratégias imediatas:**
-• Estabeleça uma rotina diária estruturada
-• Pratique técnicas de autorregulação emocional
-• Busque atividades que gerem satisfação pessoal
+                if (lowest === engajamento) {
+                    focus = 'engajamento';
+                    specificAdvice = `**Estratégias para Engajamento:**
+• Defina metas SMART semanais
+• Use gamificação em tarefas rotineiras
+• Conecte atividades aos seus valores pessoais
+• Celebre pequenas conquistas diariamente`;
+                } else if (lowest === bemEstar) {
+                    focus = 'bem-estar';
+                    specificAdvice = `**Estratégias para Bem-Estar:**
+• Pratique exercícios físicos regulares
 • Mantenha conexões sociais saudáveis
+• Estabeleça limites saudáveis
+• Cultive hobbies que tragam alegria`;
+                } else {
+                    focus = 'tranquilidade';
+                    specificAdvice = `**Estratégias para Tranquilidade:**
+• Pratique meditação ou mindfulness
+• Crie um ambiente calmo em casa
+• Use técnicas de respiração profunda
+• Limite exposição a estressores desnecessários`;
+                }
+                
+                const defaultResponses = [
+                    `Entendo que você quer trabalhar no seu **${focus}**. Baseado no seu perfil, vou te dar orientações específicas:
 
-**Próximos passos:**
-1. Escolha uma técnica para implementar esta semana
-2. Monitore seu progresso diariamente
-3. Ajuste as estratégias conforme necessário
+${specificAdvice}
 
-Que tipo de orientação específica você precisa para começar?`;
+**Ação imediata:** Escolha uma estratégia acima e pratique por 7 dias consecutivos.
+
+**Pergunta para reflexão:** O que você acredita que mais impacta seu ${focus} atualmente?`,
+
+                    `Vamos focar no desenvolvimento do seu **${focus}** de forma prática e sustentável:
+
+${specificAdvice}
+
+**Dica importante:** Mudanças pequenas e consistentes são mais eficazes que grandes transformações esporádicas.
+
+**Próximo passo:** Que tipo de suporte você sente que precisa para implementar essas estratégias?`,
+
+                    `Perfeito! Vamos criar um plano específico para melhorar seu **${focus}**:
+
+${specificAdvice}
+
+**Lembre-se:** O desenvolvimento emocional é uma jornada, não um destino. Seja paciente consigo mesmo.
+
+**Questão para aprofundar:** Qual dessas estratégias parece mais desafiadora para você implementar?`
+                ];
+                
+                return defaultResponses[responseCounter % defaultResponses.length];
             }
             
-            return `Entendo sua pergunta. Com base no seu perfil emocional, posso te ajudar com orientações específicas sobre desenvolvimento pessoal, técnicas de bem-estar e estratégias de engajamento.
+            // Resposta genérica variada
+            const genericResponses = [
+                `Entendo sua pergunta! Com base no seu perfil emocional, posso te ajudar de várias formas:
 
-Você pode me perguntar sobre:
-• Livros e materiais de estudo
-• Atividades práticas para o dia a dia
-• Técnicas de mindfulness e meditação
-• Estratégias para melhorar indicadores específicos
+**Áreas que posso abordar:**
+• Técnicas de autorregulação emocional
+• Estratégias para aumentar motivação
+• Métodos de redução de estresse
+• Desenvolvimento de resiliência
+• Criação de hábitos saudáveis
 
-O que você gostaria de saber?`;
+**Pergunta específica:** Qual dessas áreas você gostaria de explorar primeiro?`,
+
+                `Ótima pergunta! Vamos trabalhar juntos no seu desenvolvimento emocional:
+
+**Posso te ajudar com:**
+• Análise de padrões emocionais
+• Criação de rotinas personalizadas
+• Recomendações de recursos específicos
+• Estratégias de enfrentamento
+• Planejamento de metas realistas
+
+**Para personalizar melhor:** Você prefere focar em aspectos práticos ou teóricos do desenvolvimento emocional?`
+            ];
+            
+            return genericResponses[responseCounter % genericResponses.length];
         }
 
         // Permitir Enter para analisar
