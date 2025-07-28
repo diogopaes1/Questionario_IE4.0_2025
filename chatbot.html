@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assistente IA - Orientações Educacionais</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #eef2f7;
+            color: #333;
+            line-height: 1.6;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background-color: #ffffff;
+            padding: 35px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-top: 6px solid #9b59b6;
+            box-sizing: border-box;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.2em;
+            font-weight: 600;
+        }
+        .subtitle {
+            text-align: center;
+            color: #9b59b6;
+            font-size: 1.2em;
+            margin-bottom: 30px;
+            font-weight: 500;
+        }
+        
+        /* Seção de Input dos Dados */
+        .input-section {
+            background-color: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border: 2px solid #e9ecef;
+        }
+        .input-section h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+            text-align: center;
+        }
+        .scores-input {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .score-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .score-group label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #2c3e50;
+        }
+        .score-group input {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+        .score-group input:focus {
+            outline: none;
+            border-color: #9b59b6;
+        }
+        .analyze-btn {
+            display: block;
+            width: 100%;
+            max-width: 300px;
+            margin: 20px auto 0;
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .analyze-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(155, 89, 182, 0.3);
+        }
+        .analyze-btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Área do Chat */
+        .chat-container {
+            background-color: #ffffff;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            height: 500px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .chat-header {
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            color: white;
+            padding: 15px 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .chat-header::before {
+            content: "🤖";
+            font-size: 1.2em;
+        }
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background-color: #fafbfc;
+        }
+        .message {
+            margin-bottom: 15px;
+            padding: 15px 20px;
+            border-radius: 12px;
+            max-width: 85%;
+            word-wrap: break-word;
+        }
+        .message.user {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            margin-left: auto;
+            text-align: right;
+        }
+        .message.bot {
+            background-color: #ffffff;
+            border: 2px solid #e9ecef;
+            color: #2c3e50;
+            margin-right: auto;
+        }
+        .message.bot h4 {
+            color: #9b59b6;
+            margin: 0 0 10px 0;
+            font-size: 1.1em;
+        }
+        .message.bot ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        .message.bot li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+        .message.bot strong {
+            color: #2c3e50;
+        }
+        .typing-indicator {
+            display: none;
+            padding: 15px 20px;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+        .typing-indicator.show {
+            display: block;
+        }
+
+        /* Seção de Estatísticas */
+        .stats-section {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+            border: 2px solid #e9ecef;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .stat-item {
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #dee2e6;
+        }
+        .stat-item h4 {
+            margin: 0 0 5px 0;
+            color: #2c3e50;
+            font-size: 0.9em;
+        }
+        .stat-value {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: #9b59b6;
+        }
+        .stat-level {
+            font-size: 0.8em;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            .scores-input {
+                grid-template-columns: 1fr;
+            }
+            .chat-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <nav class="main-nav">
+                <a href="index.html" class="logo">E=IE 4.0</a>
+                <ul>
+                    <li><a href="questionario.html">Questionário</a></li>
+                    <li><a href="informacoes.html">Informações</a></li>
+                    <li><a href="administracao.html">Administração</a></li>
+                    <li><a href="chatbot.html">Assistente IA</a></li>
+                    <li><a href="ementa.html">Sobre o Curso</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <h1>Assistente IA Educacional</h1>
+        <p class="subtitle">Orientações personalizadas para Engajamento, Bem-Estar e Tranquilidade</p>
+
+        <!-- Seção de Input -->
+        <div class="input-section">
+            <h3>📊 Insira as Pontuações dos Indicadores</h3>
+            <div class="scores-input">
+                <div class="score-group">
+                    <label for="engajamento">Engajamento (%):</label>
+                    <input type="number" id="engajamento" min="0" max="100" step="0.01" placeholder="Ex: 75.50">
+                </div>
+                <div class="score-group">
+                    <label for="bemEstar">Bem-Estar (%):</label>
+                    <input type="number" id="bemEstar" min="0" max="100" step="0.01" placeholder="Ex: 68.25">
+                </div>
+                <div class="score-group">
+                    <label for="tranquilidade">Tranquilidade (%):</label>
+                    <input type="number" id="tranquilidade" min="0" max="100" step="0.01" placeholder="Ex: 82.10">
+                </div>
+            </div>
+            <button class="analyze-btn" onclick="analyzeScores()">🔍 Analisar e Gerar Orientações</button>
+        </div>
+
+        <!-- Área do Chat -->
+        <div class="chat-container">
+            <div class="chat-header">
+                Assistente IA - Orientações Educacionais
+            </div>
+            <div class="chat-messages" id="chatMessages">
+                <div class="message bot">
+                    <h4>👋 Olá! Sou seu Assistente IA Educacional</h4>
+                    <p>Estou aqui para ajudar você a interpretar os resultados dos indicadores emocionais e fornecer orientações personalizadas para melhorar o ambiente educacional.</p>
+                    <p><strong>Como funciona:</strong></p>
+                    <ul>
+                        <li>Insira as pontuações dos três indicadores acima</li>
+                        <li>Clique em "Analisar e Gerar Orientações"</li>
+                        <li>Receba sugestões personalizadas baseadas em IA</li>
+                    </ul>
+                    <p>Vamos começar! 🚀</p>
+                </div>
+            </div>
+            <div class="typing-indicator" id="typingIndicator">
+                🤖 Assistente IA está analisando os dados e gerando orientações...
+            </div>
+        </div>
+
+        <!-- Seção de Estatísticas -->
+        <div class="stats-section" id="statsSection" style="display: none;">
+            <h3 style="text-align: center; color: #2c3e50; margin-bottom: 20px;">📈 Análise Detalhada</h3>
+            <div class="stats-grid" id="statsGrid">
+                <!-- Estatísticas serão inseridas aqui dinamicamente -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Base de conhecimento da IA
+        const knowledgeBase = {
+            engajamento: {
+                baixo: {
+                    strategies: [
+                        "Implementar metodologias ativas de aprendizagem (aprendizagem baseada em projetos, sala de aula invertida)",
+                        "Criar conexões entre o conteúdo e a vida real dos estudantes",
+                        "Estabelecer metas claras e alcançáveis com feedback constante",
+                        "Promover autonomia através de escolhas no processo de aprendizagem",
+                        "Implementar sistema de reconhecimento e celebração de conquistas",
+                        "Criar espaços para expressão criativa e inovação",
+                        "Desenvolver relacionamentos mais próximos professor-aluno"
+                    ],
+                    activities: [
+                        "Rodas de conversa para entender interesses dos estudantes",
+                        "Projetos interdisciplinares conectados à comunidade local",
+                        "Gamificação de atividades de aprendizagem",
+                        "Criação de portfólios digitais de aprendizagem",
+                        "Mentoria entre pares (estudantes mais experientes)",
+                        "Feiras de ciências e mostras de talentos",
+                        "Clubes e grupos de interesse específicos"
+                    ]
+                },
+                moderado: {
+                    strategies: [
+                        "Diversificar metodologias para manter o interesse",
+                        "Implementar desafios progressivos e personalizados",
+                        "Fortalecer o senso de propósito e significado",
+                        "Criar oportunidades de liderança estudantil",
+                        "Desenvolver projetos de impacto social",
+                        "Implementar avaliação formativa contínua",
+                        "Promover colaboração e trabalho em equipe"
+                    ],
+                    activities: [
+                        "Rotação de atividades e metodologias semanalmente",
+                        "Projetos de empreendedorismo social",
+                        "Comitês estudantis para decisões escolares",
+                        "Competições acadêmicas saudáveis",
+                        "Parcerias com organizações da comunidade",
+                        "Apresentações públicas de projetos",
+                        "Intercâmbio de experiências com outras escolas"
+                    ]
+                },
+                alto: {
+                    strategies: [
+                        "Manter a motivação através de novos desafios",
+                        "Criar oportunidades de mentoria para outros estudantes",
+                        "Desenvolver projetos de pesquisa avançados",
+                        "Implementar programas de extensão comunitária",
+                        "Promover participação em competições externas",
+                        "Criar espaços para inovação e experimentação",
+                        "Documentar e compartilhar boas práticas"
+                    ],
+                    activities: [
+                        "Programa de iniciação científica júnior",
+                        "Criação de startups educacionais",
+                        "Mentoria reversa (estudantes ensinando adultos)",
+                        "Participação em olimpíadas e competições",
+                        "Desenvolvimento de aplicativos e soluções tecnológicas",
+                        "Criação de conteúdo educacional para outros estudantes",
+                        "Parcerias com universidades e centros de pesquisa"
+                    ]
+                }
+            },
+            bemEstar: {
+                baixo: {
+                    strategies: [
+                        "Implementar programas de apoio psicológico e emocional",
+                        "Criar ambientes físicos mais acolhedores e confortáveis",
+                        "Estabelecer rotinas de autocuidado e mindfulness",
+                        "Promover atividades físicas e recreativas regulares",
+                        "Desenvolver redes de apoio entre estudantes",
+                        "Implementar políticas anti-bullying efetivas",
+                        "Oferecer orientação nutricional e hábitos saudáveis"
+                    ],
+                    activities: [
+                        "Sessões de meditação e relaxamento guiado",
+                        "Criação de espaços zen e de descompressão",
+                        "Grupos de apoio e círculos de conversa",
+                        "Atividades de arte-terapia e expressão criativa",
+                        "Programas de exercícios físicos adaptados",
+                        "Workshops sobre gestão de emoções",
+                        "Campanhas de conscientização sobre saúde mental"
+                    ]
+                },
+                moderado: {
+                    strategies: [
+                        "Fortalecer programas de prevenção e promoção da saúde",
+                        "Criar rituais positivos e tradições escolares",
+                        "Implementar educação socioemocional sistemática",
+                        "Promover equilíbrio entre vida acadêmica e pessoal",
+                        "Desenvolver habilidades de resiliência",
+                        "Criar espaços de convivência e socialização",
+                        "Implementar feedback positivo e construtivo"
+                    ],
+                    activities: [
+                        "Semanas temáticas de bem-estar",
+                        "Criação de jardins terapêuticos",
+                        "Programas de buddy system (sistema de parceiros)",
+                        "Festivais de talentos e celebrações",
+                        "Workshops de habilidades para a vida",
+                        "Criação de murais de gratidão e positividade",
+                        "Atividades intergeracionais com a comunidade"
+                    ]
+                },
+                alto: {
+                    strategies: [
+                        "Manter práticas de bem-estar como parte da cultura escolar",
+                        "Criar programas de multiplicadores de bem-estar",
+                        "Implementar avaliação contínua do clima escolar",
+                        "Desenvolver liderança em saúde mental estudantil",
+                        "Promover pesquisa em bem-estar educacional",
+                        "Criar parcerias com organizações de saúde",
+                        "Documentar e replicar boas práticas"
+                    ],
+                    activities: [
+                        "Formação de embaixadores do bem-estar",
+                        "Criação de protocolos de cuidado preventivo",
+                        "Desenvolvimento de aplicativos de bem-estar",
+                        "Pesquisas sobre fatores de proteção",
+                        "Criação de redes de escolas saudáveis",
+                        "Eventos de conscientização comunitária",
+                        "Publicação de guias de boas práticas"
+                    ]
+                }
+            },
+            tranquilidade: {
+                baixo: {
+                    strategies: [
+                        "Implementar técnicas de gestão de estresse e ansiedade",
+                        "Criar ambientes calmos e organizados",
+                        "Estabelecer rotinas previsíveis e estruturadas",
+                        "Promover técnicas de respiração e relaxamento",
+                        "Reduzir sobrecarga acadêmica desnecessária",
+                        "Implementar pausas regulares e momentos de descanso",
+                        "Oferecer suporte individualizado para estudantes em crise"
+                    ],
+                    activities: [
+                        "Sessões diárias de mindfulness e respiração",
+                        "Criação de salas de relaxamento e silêncio",
+                        "Implementação de horários flexíveis",
+                        "Atividades de yoga e tai chi",
+                        "Criação de protocolos de emergência emocional",
+                        "Workshops sobre gestão do tempo",
+                        "Implementação de música ambiente relaxante"
+                    ]
+                },
+                moderado: {
+                    strategies: [
+                        "Fortalecer habilidades de autorregulação emocional",
+                        "Criar estratégias preventivas de gestão de estresse",
+                        "Implementar educação sobre equilíbrio vida-estudo",
+                        "Promover atividades de conexão com a natureza",
+                        "Desenvolver rituais de transição entre atividades",
+                        "Criar espaços de reflexão e introspecção",
+                        "Implementar feedback calmo e construtivo"
+                    ],
+                    activities: [
+                        "Caminhadas meditativas em espaços verdes",
+                        "Criação de diários de gratidão e reflexão",
+                        "Implementação de sinais visuais de calma",
+                        "Atividades de jardinagem terapêutica",
+                        "Criação de rituais de início e fim de aula",
+                        "Workshops sobre comunicação não-violenta",
+                        "Implementação de pausas ativas relaxantes"
+                    ]
+                },
+                alto: {
+                    strategies: [
+                        "Manter cultura de calma e serenidade",
+                        "Criar programas de mentoria em autorregulação",
+                        "Implementar práticas contemplativas regulares",
+                        "Desenvolver liderança em gestão emocional",
+                        "Promover pesquisa em ambientes tranquilos",
+                        "Criar modelos replicáveis de tranquilidade",
+                        "Documentar estratégias efetivas de calma"
+                    ],
+                    activities: [
+                        "Formação de facilitadores de tranquilidade",
+                        "Criação de espaços modelo de serenidade",
+                        "Desenvolvimento de protocolos de calma",
+                        "Pesquisas sobre arquitetura tranquilizante",
+                        "Criação de redes de escolas serenas",
+                        "Eventos de promoção da paz interior",
+                        "Publicação de manuais de tranquilidade escolar"
+                    ]
+                }
+            }
+        };
+
+        function getLevel(score) {
+            if (score < 50) return 'baixo';
+            if (score < 75) return 'moderado';
+            return 'alto';
+        }
+
+        function getLevelText(score) {
+            if (score < 50) return 'Baixo';
+            if (score < 75) return 'Moderado';
+            return 'Alto';
+        }
+
+        function getLevelColor(score) {
+            if (score < 50) return '#e74c3c';
+            if (score < 75) return '#f39c12';
+            return '#27ae60';
+        }
+
+        function analyzeScores() {
+            const engajamento = parseFloat(document.getElementById('engajamento').value);
+            const bemEstar = parseFloat(document.getElementById('bemEstar').value);
+            const tranquilidade = parseFloat(document.getElementById('tranquilidade').value);
+
+            // Validação
+            if (isNaN(engajamento) || isNaN(bemEstar) || isNaN(tranquilidade)) {
+                alert('Por favor, preencha todos os campos com valores válidos.');
+                return;
+            }
+
+            if (engajamento < 0 || engajamento > 100 || bemEstar < 0 || bemEstar > 100 || tranquilidade < 0 || tranquilidade > 100) {
+                alert('Por favor, insira valores entre 0 e 100.');
+                return;
+            }
+
+            // Mostrar indicador de digitação
+            const typingIndicator = document.getElementById('typingIndicator');
+            typingIndicator.classList.add('show');
+
+            // Simular tempo de processamento da IA
+            setTimeout(() => {
+                generateAIResponse(engajamento, bemEstar, tranquilidade);
+                typingIndicator.classList.remove('show');
+            }, 2000);
+
+            // Adicionar mensagem do usuário
+            addMessage('user', `📊 Análise solicitada:\n• Engajamento: ${engajamento}%\n• Bem-Estar: ${bemEstar}%\n• Tranquilidade: ${tranquilidade}%`);
+        }
+
+        function generateAIResponse(engajamento, bemEstar, tranquilidade) {
+            const engLevel = getLevel(engajamento);
+            const bemLevel = getLevel(bemEstar);
+            const tranqLevel = getLevel(tranquilidade);
+
+            const mediaGeral = ((engajamento + bemEstar + tranquilidade) / 3).toFixed(1);
+
+            let response = `<h4>🎯 Análise Completa dos Indicadores</h4>`;
+            
+            // Análise geral
+            response += `<p><strong>Média Geral:</strong> ${mediaGeral}% (${getLevelText(mediaGeral)})</p>`;
+            
+            // Análise individual
+            response += `<p><strong>Diagnóstico por Indicador:</strong></p>`;
+            response += `<ul>`;
+            response += `<li><strong>Engajamento:</strong> ${engajamento}% - Nível ${getLevelText(engajamento)}</li>`;
+            response += `<li><strong>Bem-Estar:</strong> ${bemEstar}% - Nível ${getLevelText(bemEstar)}</li>`;
+            response += `<li><strong>Tranquilidade:</strong> ${tranquilidade}% - Nível ${getLevelText(tranquilidade)}</li>`;
+            response += `</ul>`;
+
+            // Identificar prioridades
+            const scores = [
+                { name: 'Engajamento', value: engajamento, level: engLevel },
+                { name: 'Bem-Estar', value: bemEstar, level: bemLevel },
+                { name: 'Tranquilidade', value: tranquilidade, level: tranqLevel }
+            ];
+            
+            scores.sort((a, b) => a.value - b.value);
+            const prioridade = scores[0];
+
+            response += `<h4>🚨 Área Prioritária: ${prioridade.name}</h4>`;
+            response += `<p>Com base na análise, o <strong>${prioridade.name}</strong> apresenta a menor pontuação (${prioridade.value}%) e deve receber atenção imediata.</p>`;
+
+            // Estratégias específicas para cada área
+            response += generateStrategies('Engajamento', engajamento, engLevel);
+            response += generateStrategies('Bem-Estar', bemEstar, bemLevel);
+            response += generateStrategies('Tranquilidade', tranquilidade, tranqLevel);
+
+            // Plano de ação integrado
+            response += generateIntegratedPlan(engajamento, bemEstar, tranquilidade);
+
+            addMessage('bot', response);
+            updateStats(engajamento, bemEstar, tranquilidade);
+        }
+
+        function generateStrategies(indicator, score, level) {
+            const indicatorKey = indicator.toLowerCase().replace('-', '');
+            const strategies = knowledgeBase[indicatorKey][level].strategies;
+            const activities = knowledgeBase[indicatorKey][level].activities;
+
+            let response = `<h4>📋 ${indicator} (${score}% - ${getLevelText(score)})</h4>`;
+            
+            response += `<p><strong>Estratégias Recomendadas:</strong></p>`;
+            response += `<ul>`;
+            strategies.slice(0, 4).forEach(strategy => {
+                response += `<li>${strategy}</li>`;
+            });
+            response += `</ul>`;
+
+            response += `<p><strong>Atividades Práticas:</strong></p>`;
+            response += `<ul>`;
+            activities.slice(0, 3).forEach(activity => {
+                response += `<li>${activity}</li>`;
+            });
+            response += `</ul>`;
+
+            return response;
+        }
+
+        function generateIntegratedPlan(engajamento, bemEstar, tranquilidade) {
+            const mediaGeral = (engajamento + bemEstar + tranquilidade) / 3;
+            
+            let plan = `<h4>🎯 Plano de Ação Integrado (30 dias)</h4>`;
+            
+            if (mediaGeral < 50) {
+                plan += `<p><strong>Situação Crítica:</strong> Intervenção imediata necessária em todas as áreas.</p>`;
+                plan += `<p><strong>Semana 1-2:</strong> Foco em estabilização e suporte básico</p>`;
+                plan += `<p><strong>Semana 3-4:</strong> Implementação de estratégias de recuperação</p>`;
+            } else if (mediaGeral < 75) {
+                plan += `<p><strong>Situação Moderada:</strong> Implementação gradual de melhorias.</p>`;
+                plan += `<p><strong>Semana 1-2:</strong> Fortalecimento das áreas mais frágeis</p>`;
+                plan += `<p><strong>Semana 3-4:</strong> Expansão para todas as áreas</p>`;
+            } else {
+                plan += `<p><strong>Situação Excelente:</strong> Manutenção e aperfeiçoamento contínuo.</p>`;
+                plan += `<p><strong>Semana 1-2:</strong> Consolidação das boas práticas</p>`;
+                plan += `<p><strong>Semana 3-4:</strong> Inovação e expansão</p>`;
+            }
+
+            plan += `<p><strong>Indicadores de Sucesso:</strong></p>`;
+            plan += `<ul>`;
+            plan += `<li>Aumento de 10-15% nos indicadores mais baixos</li>`;
+            plan += `<li>Feedback positivo de estudantes e professores</li>`;
+            plan += `<li>Redução de conflitos e problemas disciplinares</li>`;
+            plan += `<li>Maior participação em atividades escolares</li>`;
+            plan += `</ul>`;
+
+            return plan;
+        }
+
+        function addMessage(sender, content) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            messageDiv.innerHTML = content;
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function updateStats(engajamento, bemEstar, tranquilidade) {
+            const statsSection = document.getElementById('statsSection');
+            const statsGrid = document.getElementById('statsGrid');
+            
+            const mediaGeral = ((engajamento + bemEstar + tranquilidade) / 3).toFixed(1);
+            
+            statsGrid.innerHTML = `
+                <div class="stat-item">
+                    <h4>Engajamento</h4>
+                    <div class="stat-value" style="color: ${getLevelColor(engajamento)}">${engajamento}%</div>
+                    <div class="stat-level">${getLevelText(engajamento)}</div>
+                </div>
+                <div class="stat-item">
+                    <h4>Bem-Estar</h4>
+                    <div class="stat-value" style="color: ${getLevelColor(bemEstar)}">${bemEstar}%</div>
+                    <div class="stat-level">${getLevelText(bemEstar)}</div>
+                </div>
+                <div class="stat-item">
+                    <h4>Tranquilidade</h4>
+                    <div class="stat-value" style="color: ${getLevelColor(tranquilidade)}">${tranquilidade}%</div>
+                    <div class="stat-level">${getLevelText(tranquilidade)}</div>
+                </div>
+                <div class="stat-item">
+                    <h4>Média Geral</h4>
+                    <div class="stat-value" style="color: ${getLevelColor(mediaGeral)}">${mediaGeral}%</div>
+                    <div class="stat-level">${getLevelText(mediaGeral)}</div>
+                </div>
+            `;
+            
+            statsSection.style.display = 'block';
+        }
+
+        // Permitir Enter para analisar
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && (e.target.id === 'engajamento' || e.target.id === 'bemEstar' || e.target.id === 'tranquilidade')) {
+                analyzeScores();
+            }
+        });
+    </script>
+</body>
+</html>
