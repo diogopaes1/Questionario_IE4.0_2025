@@ -184,6 +184,115 @@
             display: block;
         }
 
+        /* Chat Interativo */
+        .interactive-chat {
+            display: none;
+            background-color: #ffffff;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            margin-top: 30px;
+            overflow: hidden;
+        }
+        .interactive-chat.show {
+            display: flex;
+            flex-direction: column;
+            height: 600px;
+        }
+        .interactive-chat-header {
+            background: linear-gradient(135deg, #27ae60, #229954);
+            color: white;
+            padding: 15px 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .interactive-chat-header .title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .interactive-chat-header .title::before {
+            content: "🧠";
+            font-size: 1.2em;
+        }
+        .close-chat {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2em;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        .close-chat:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        .interactive-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background-color: #fafbfc;
+        }
+        .interactive-message {
+            margin-bottom: 15px;
+            padding: 15px 20px;
+            border-radius: 12px;
+            max-width: 85%;
+            word-wrap: break-word;
+            line-height: 1.6;
+        }
+        .interactive-message.user {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            margin-left: auto;
+            text-align: right;
+        }
+        .interactive-message.assistant {
+            background-color: #ffffff;
+            border: 2px solid #e9ecef;
+            color: #2c3e50;
+            margin-right: auto;
+        }
+        .chat-input-container {
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            gap: 10px;
+        }
+        .chat-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            font-size: 1em;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+        .chat-input:focus {
+            border-color: #27ae60;
+        }
+        .send-btn {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #27ae60, #229954);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        .send-btn:hover {
+            transform: translateY(-1px);
+        }
+        .send-btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         /* Seção de Estatísticas */
         .stats-section {
             background-color: #f8f9fa;
@@ -230,6 +339,9 @@
             }
             .chat-container {
                 height: 400px;
+            }
+            .interactive-chat.show {
+                height: 500px;
             }
         }
     </style>
@@ -286,6 +398,7 @@
                         <li>Insira as pontuações dos três indicadores acima</li>
                         <li>Clique em "Analisar e Gerar Orientações"</li>
                         <li>Receba sugestões personalizadas baseadas em IA</li>
+                        <li>Continue a conversa no chat interativo que aparecerá</li>
                     </ul>
                     <p>Vamos começar! 🚀</p>
                 </div>
@@ -302,9 +415,28 @@
                 <!-- Estatísticas serão inseridas aqui dinamicamente -->
             </div>
         </div>
+
+        <!-- Chat Interativo -->
+        <div class="interactive-chat" id="interactiveChat">
+            <div class="interactive-chat-header">
+                <div class="title">Chat Interativo - Orientações Personalizadas</div>
+                <button class="close-chat" onclick="closeInteractiveChat()">✕</button>
+            </div>
+            <div class="interactive-messages" id="interactiveMessages">
+                <!-- Mensagens do chat interativo aparecerão aqui -->
+            </div>
+            <div class="chat-input-container">
+                <input type="text" id="chatInput" class="chat-input" placeholder="Digite sua pergunta sobre desenvolvimento emocional..." onkeypress="handleChatKeyPress(event)">
+                <button class="send-btn" id="sendBtn" onclick="sendMessage()">Enviar</button>
+            </div>
+        </div>
     </div>
 
     <script>
+        // Variáveis globais
+        let currentDiagnosis = null;
+        let conversationHistory = [];
+
         function getLevel(score) {
             if (score < 50) return 'baixo';
             if (score < 75) return 'moderado';
@@ -324,13 +456,13 @@
         }
 
         function analyzeScores() {
-            console.log('Função analyzeScores chamada'); // Debug
+            console.log('Função analyzeScores chamada');
             
             const engajamento = parseFloat(document.getElementById('engajamento').value);
             const bemEstar = parseFloat(document.getElementById('bemEstar').value);
             const tranquilidade = parseFloat(document.getElementById('tranquilidade').value);
 
-            console.log('Valores:', engajamento, bemEstar, tranquilidade); // Debug
+            console.log('Valores:', engajamento, bemEstar, tranquilidade);
 
             // Validação
             if (isNaN(engajamento) || isNaN(bemEstar) || isNaN(tranquilidade)) {
@@ -343,6 +475,15 @@
                 return;
             }
 
+            // Salvar diagnóstico atual
+            currentDiagnosis = {
+                engajamento,
+                bemEstar,
+                tranquilidade,
+                mediaGeral: ((engajamento + bemEstar + tranquilidade) / 3).toFixed(1),
+                timestamp: new Date().toISOString()
+            };
+
             // Adicionar mensagem do usuário
             addMessage('user', `📊 Análise solicitada:\n• Engajamento: ${engajamento}%\n• Bem-Estar: ${bemEstar}%\n• Tranquilidade: ${tranquilidade}%`);
 
@@ -352,14 +493,19 @@
 
             // Simular tempo de processamento da IA
             setTimeout(() => {
-                console.log('Gerando resposta da IA'); // Debug
+                console.log('Gerando resposta da IA');
                 generateAIResponse(engajamento, bemEstar, tranquilidade);
                 typingIndicator.classList.remove('show');
+                
+                // Mostrar chat interativo após análise
+                setTimeout(() => {
+                    showInteractiveChat();
+                }, 1000);
             }, 2000);
         }
 
         function generateAIResponse(engajamento, bemEstar, tranquilidade) {
-            console.log('Gerando resposta para:', engajamento, bemEstar, tranquilidade); // Debug
+            console.log('Gerando resposta para:', engajamento, bemEstar, tranquilidade);
             
             const mediaGeral = ((engajamento + bemEstar + tranquilidade) / 3).toFixed(1);
 
@@ -389,195 +535,22 @@
             response += `<h4>🚨 Área Prioritária: ${prioridade.name}</h4>`;
             response += `<p>Com base na análise, o <strong>${prioridade.name}</strong> apresenta a menor pontuação (${prioridade.value}%) e deve receber atenção imediata.</p>`;
 
-            // Estratégias específicas
-            response += generateStrategiesForScore('Engajamento', engajamento);
-            response += generateStrategiesForScore('Bem-Estar', bemEstar);
-            response += generateStrategiesForScore('Tranquilidade', tranquilidade);
+            response += `<p><strong>💬 Continue a conversa no chat interativo abaixo para receber orientações mais específicas!</strong></p>`;
 
-            // Plano de ação
-            response += generateActionPlan(mediaGeral);
-
-            console.log('Resposta gerada:', response); // Debug
+            console.log('Resposta gerada:', response);
             addMessage('bot', response);
             updateStats(engajamento, bemEstar, tranquilidade);
         }
 
-        function generateStrategiesForScore(indicator, score) {
-            let strategies = [];
-            let activities = [];
-
-            if (indicator === 'Engajamento') {
-                if (score < 50) {
-                    strategies = [
-                        "Implementar metodologias ativas de aprendizagem",
-                        "Criar conexões entre conteúdo e vida real",
-                        "Estabelecer metas claras e alcançáveis",
-                        "Promover autonomia nas escolhas de aprendizagem"
-                    ];
-                    activities = [
-                        "Rodas de conversa sobre interesses dos estudantes",
-                        "Projetos interdisciplinares comunitários",
-                        "Gamificação de atividades"
-                    ];
-                } else if (score < 75) {
-                    strategies = [
-                        "Diversificar metodologias de ensino",
-                        "Implementar desafios progressivos",
-                        "Fortalecer senso de propósito",
-                        "Criar oportunidades de liderança"
-                    ];
-                    activities = [
-                        "Rotação semanal de atividades",
-                        "Projetos de empreendedorismo social",
-                        "Comitês estudantis"
-                    ];
-                } else {
-                    strategies = [
-                        "Manter motivação com novos desafios",
-                        "Criar oportunidades de mentoria",
-                        "Desenvolver projetos avançados",
-                        "Promover participação externa"
-                    ];
-                    activities = [
-                        "Iniciação científica júnior",
-                        "Criação de startups educacionais",
-                        "Mentoria reversa"
-                    ];
-                }
-            } else if (indicator === 'Bem-Estar') {
-                if (score < 50) {
-                    strategies = [
-                        "Implementar apoio psicológico",
-                        "Criar ambientes acolhedores",
-                        "Estabelecer rotinas de autocuidado",
-                        "Promover atividades físicas"
-                    ];
-                    activities = [
-                        "Sessões de meditação guiada",
-                        "Espaços de descompressão",
-                        "Grupos de apoio"
-                    ];
-                } else if (score < 75) {
-                    strategies = [
-                        "Fortalecer programas de prevenção",
-                        "Criar rituais positivos",
-                        "Implementar educação socioemocional",
-                        "Promover equilíbrio vida-estudo"
-                    ];
-                    activities = [
-                        "Semanas de bem-estar",
-                        "Jardins terapêuticos",
-                        "Sistema de parceiros"
-                    ];
-                } else {
-                    strategies = [
-                        "Manter cultura de bem-estar",
-                        "Criar multiplicadores",
-                        "Avaliar clima escolar",
-                        "Desenvolver liderança em saúde mental"
-                    ];
-                    activities = [
-                        "Embaixadores do bem-estar",
-                        "Protocolos preventivos",
-                        "Redes de escolas saudáveis"
-                    ];
-                }
-            } else { // Tranquilidade
-                if (score < 50) {
-                    strategies = [
-                        "Implementar gestão de estresse",
-                        "Criar ambientes calmos",
-                        "Estabelecer rotinas estruturadas",
-                        "Promover técnicas de relaxamento"
-                    ];
-                    activities = [
-                        "Mindfulness diário",
-                        "Salas de relaxamento",
-                        "Horários flexíveis"
-                    ];
-                } else if (score < 75) {
-                    strategies = [
-                        "Fortalecer autorregulação",
-                        "Criar estratégias preventivas",
-                        "Implementar equilíbrio vida-estudo",
-                        "Promover conexão com natureza"
-                    ];
-                    activities = [
-                        "Caminhadas meditativas",
-                        "Diários de reflexão",
-                        "Jardinagem terapêutica"
-                    ];
-                } else {
-                    strategies = [
-                        "Manter cultura de calma",
-                        "Criar mentoria em autorregulação",
-                        "Implementar práticas contemplativas",
-                        "Desenvolver liderança emocional"
-                    ];
-                    activities = [
-                        "Facilitadores de tranquilidade",
-                        "Espaços modelo de serenidade",
-                        "Protocolos de calma"
-                    ];
-                }
-            }
-
-            let response = `<h4>📋 ${indicator} (${score}% - ${getLevelText(score)})</h4>`;
-            
-            response += `<p><strong>Estratégias Recomendadas:</strong></p>`;
-            response += `<ul>`;
-            strategies.forEach(strategy => {
-                response += `<li>${strategy}</li>`;
-            });
-            response += `</ul>`;
-
-            response += `<p><strong>Atividades Práticas:</strong></p>`;
-            response += `<ul>`;
-            activities.forEach(activity => {
-                response += `<li>${activity}</li>`;
-            });
-            response += `</ul>`;
-
-            return response;
-        }
-
-        function generateActionPlan(mediaGeral) {
-            let plan = `<h4>🎯 Plano de Ação Integrado (30 dias)</h4>`;
-            
-            if (mediaGeral < 50) {
-                plan += `<p><strong>Situação Crítica:</strong> Intervenção imediata necessária.</p>`;
-                plan += `<p><strong>Semana 1-2:</strong> Foco em estabilização e suporte básico</p>`;
-                plan += `<p><strong>Semana 3-4:</strong> Implementação de estratégias de recuperação</p>`;
-            } else if (mediaGeral < 75) {
-                plan += `<p><strong>Situação Moderada:</strong> Implementação gradual de melhorias.</p>`;
-                plan += `<p><strong>Semana 1-2:</strong> Fortalecimento das áreas mais frágeis</p>`;
-                plan += `<p><strong>Semana 3-4:</strong> Expansão para todas as áreas</p>`;
-            } else {
-                plan += `<p><strong>Situação Excelente:</strong> Manutenção e aperfeiçoamento.</p>`;
-                plan += `<p><strong>Semana 1-2:</strong> Consolidação das boas práticas</p>`;
-                plan += `<p><strong>Semana 3-4:</strong> Inovação e expansão</p>`;
-            }
-
-            plan += `<p><strong>Indicadores de Sucesso:</strong></p>`;
-            plan += `<ul>`;
-            plan += `<li>Aumento de 10-15% nos indicadores mais baixos</li>`;
-            plan += `<li>Feedback positivo de estudantes e professores</li>`;
-            plan += `<li>Redução de conflitos e problemas disciplinares</li>`;
-            plan += `<li>Maior participação em atividades escolares</li>`;
-            plan += `</ul>`;
-
-            return plan;
-        }
-
         function addMessage(sender, content) {
-            console.log('Adicionando mensagem:', sender, content); // Debug
+            console.log('Adicionando mensagem:', sender, content);
             
             const messagesContainer = document.getElementById('chatMessages');
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${sender}`;
             
             if (sender === 'user') {
-                messageDiv.style.whiteSpace = 'pre-line'; // Para quebras de linha
+                messageDiv.style.whiteSpace = 'pre-line';
                 messageDiv.textContent = content;
             } else {
                 messageDiv.innerHTML = content;
@@ -588,7 +561,7 @@
         }
 
         function updateStats(engajamento, bemEstar, tranquilidade) {
-            console.log('Atualizando estatísticas'); // Debug
+            console.log('Atualizando estatísticas');
             
             const statsSection = document.getElementById('statsSection');
             const statsGrid = document.getElementById('statsGrid');
@@ -619,6 +592,255 @@
             `;
             
             statsSection.style.display = 'block';
+        }
+
+        // Funções do Chat Interativo
+        function showInteractiveChat() {
+            const interactiveChat = document.getElementById('interactiveChat');
+            interactiveChat.classList.add('show');
+            
+            // Adicionar mensagem inicial do assistente
+            if (currentDiagnosis) {
+                const welcomeMessage = generateWelcomeMessage();
+                addInteractiveMessage('assistant', welcomeMessage);
+            }
+            
+            // Focar no input
+            document.getElementById('chatInput').focus();
+        }
+
+        function closeInteractiveChat() {
+            const interactiveChat = document.getElementById('interactiveChat');
+            interactiveChat.classList.remove('show');
+            
+            // Limpar mensagens
+            document.getElementById('interactiveMessages').innerHTML = '';
+            conversationHistory = [];
+        }
+
+        function generateWelcomeMessage() {
+            const { engajamento, bemEstar, tranquilidade, mediaGeral } = currentDiagnosis;
+            
+            return `Olá! 👋 Agora que analisamos seus indicadores emocionais, estou aqui para te ajudar com orientações mais específicas.
+
+**Seu Diagnóstico Resumido:**
+• Engajamento: ${engajamento}% (${getLevelText(engajamento)})
+• Bem-Estar: ${bemEstar}% (${getLevelText(bemEstar)})
+• Tranquilidade: ${tranquilidade}% (${getLevelText(tranquilidade)})
+• Média Geral: ${mediaGeral}% (${getLevelText(mediaGeral)})
+
+Posso te ajudar com:
+🎯 **Estratégias específicas** para melhorar cada indicador
+📚 **Sugestões de leituras** sobre desenvolvimento emocional
+🏃‍♀️ **Atividades práticas** para implementar no dia a dia
+🧘‍♂️ **Técnicas de mindfulness** e autorregulação emocional
+📈 **Planos de desenvolvimento** personalizados
+
+O que você gostaria de explorar primeiro?`;
+        }
+
+        function addInteractiveMessage(sender, content) {
+            const messagesContainer = document.getElementById('interactiveMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `interactive-message ${sender}`;
+            
+            if (sender === 'user') {
+                messageDiv.style.whiteSpace = 'pre-line';
+                messageDiv.textContent = content;
+            } else {
+                // Converter markdown básico para HTML
+                const htmlContent = content
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                    .replace(/\n/g, '<br>');
+                messageDiv.innerHTML = htmlContent;
+            }
+            
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function handleChatKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        async function sendMessage() {
+            const chatInput = document.getElementById('chatInput');
+            const sendBtn = document.getElementById('sendBtn');
+            const message = chatInput.value.trim();
+            
+            if (!message) return;
+            
+            // Adicionar mensagem do usuário
+            addInteractiveMessage('user', message);
+            
+            // Limpar input e desabilitar botão
+            chatInput.value = '';
+            sendBtn.disabled = true;
+            sendBtn.textContent = 'Enviando...';
+            
+            // Adicionar à história da conversa
+            conversationHistory.push({ role: 'user', content: message });
+            
+            try {
+                // Chamar API do LLM
+                const response = await callLLMAPI(message);
+                addInteractiveMessage('assistant', response);
+                conversationHistory.push({ role: 'assistant', content: response });
+            } catch (error) {
+                console.error('Erro ao chamar API:', error);
+                addInteractiveMessage('assistant', 'Desculpe, ocorreu um erro ao processar sua mensagem. Tente novamente em alguns instantes.');
+            }
+            
+            // Reabilitar botão
+            sendBtn.disabled = false;
+            sendBtn.textContent = 'Enviar';
+            chatInput.focus();
+        }
+
+        async function callLLMAPI(userMessage) {
+            // Preparar contexto completo
+            const diagnosticContext = currentDiagnosis ? 
+                `Diagnóstico do usuário:
+                - Engajamento: ${currentDiagnosis.engajamento}% (${getLevelText(currentDiagnosis.engajamento)})
+                - Bem-Estar: ${currentDiagnosis.bemEstar}% (${getLevelText(currentDiagnosis.bemEstar)})
+                - Tranquilidade: ${currentDiagnosis.tranquilidade}% (${getLevelText(currentDiagnosis.tranquilidade)})
+                - Média Geral: ${currentDiagnosis.mediaGeral}% (${getLevelText(currentDiagnosis.mediaGeral)})` 
+                : '';
+
+            const systemPrompt = `Você é um assistente especializado em desenvolvimento emocional e educacional. Sua função é fornecer orientações personalizadas baseadas nos indicadores emocionais do usuário.
+
+${diagnosticContext}
+
+Diretrizes para suas respostas:
+1. Seja empático e encorajador
+2. Forneça sugestões práticas e aplicáveis
+3. Inclua recomendações de livros, atividades e técnicas específicas
+4. Mantenha um tom profissional mas acessível
+5. Adapte suas sugestões aos níveis específicos dos indicadores
+6. Limite suas respostas a 300-400 palavras
+7. Use formatação markdown quando apropriado (**negrito**, *itálico*)
+8. Foque em soluções construtivas e baseadas em evidências
+
+Responda em português brasileiro.`;
+
+            // Preparar mensagens para a API
+            const messages = [
+                { role: 'system', content: systemPrompt },
+                ...conversationHistory.slice(-6), // Manter apenas as últimas 6 mensagens para contexto
+                { role: 'user', content: userMessage }
+            ];
+
+            try {
+                // Usando API do Groq (gratuita)
+                const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer gsk_SEU_TOKEN_AQUI', // Substitua pelo seu token do Groq
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model: 'llama3-8b-8192', // Modelo gratuito do Groq
+                        messages: messages,
+                        max_tokens: 500,
+                        temperature: 0.7
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Erro na API: ${response.status}`);
+                }
+
+                const data = await response.json();
+                return data.choices[0].message.content;
+                
+            } catch (error) {
+                console.error('Erro na chamada da API:', error);
+                
+                // Fallback: resposta baseada em regras simples
+                return generateFallbackResponse(userMessage);
+            }
+        }
+
+        function generateFallbackResponse(userMessage) {
+            const message = userMessage.toLowerCase();
+            
+            if (message.includes('livro') || message.includes('leitura') || message.includes('ler')) {
+                return `📚 **Recomendações de Leitura para Desenvolvimento Emocional:**
+
+**Para Engajamento:**
+• "Mindset: A Nova Psicologia do Sucesso" - Carol Dweck
+• "Flow: A Psicologia da Experiência Ótima" - Mihaly Csikszentmihalyi
+
+**Para Bem-Estar:**
+• "A Ciência do Bem-Estar" - Sonja Lyubomirsky
+• "Inteligência Emocional" - Daniel Goleman
+
+**Para Tranquilidade:**
+• "O Poder do Agora" - Eckhart Tolle
+• "Mindfulness para Iniciantes" - Jon Kabat-Zinn
+
+Qual área você gostaria de aprofundar mais?`;
+            }
+            
+            if (message.includes('atividade') || message.includes('exercício') || message.includes('prática')) {
+                return `🏃‍♀️ **Atividades Práticas Recomendadas:**
+
+**Para melhorar Engajamento:**
+• Definir metas SMART semanais
+• Técnica Pomodoro para foco
+• Journaling de conquistas diárias
+
+**Para aumentar Bem-Estar:**
+• Meditação de 10 minutos diários
+• Exercícios de gratidão
+• Conexões sociais significativas
+
+**Para desenvolver Tranquilidade:**
+• Respiração 4-7-8 para relaxamento
+• Caminhadas na natureza
+• Práticas de mindfulness
+
+Qual atividade você gostaria de começar hoje?`;
+            }
+            
+            // Resposta padrão baseada no diagnóstico
+            if (currentDiagnosis) {
+                const { engajamento, bemEstar, tranquilidade } = currentDiagnosis;
+                const lowest = Math.min(engajamento, bemEstar, tranquilidade);
+                
+                let focus = '';
+                if (lowest === engajamento) focus = 'engajamento';
+                else if (lowest === bemEstar) focus = 'bem-estar';
+                else focus = 'tranquilidade';
+                
+                return `Com base no seu diagnóstico, sugiro focarmos primeiro no **${focus}**, que apresenta a menor pontuação.
+
+**Estratégias imediatas:**
+• Estabeleça uma rotina diária estruturada
+• Pratique técnicas de autorregulação emocional
+• Busque atividades que gerem satisfação pessoal
+• Mantenha conexões sociais saudáveis
+
+**Próximos passos:**
+1. Escolha uma técnica para implementar esta semana
+2. Monitore seu progresso diariamente
+3. Ajuste as estratégias conforme necessário
+
+Que tipo de orientação específica você precisa para começar?`;
+            }
+            
+            return `Entendo sua pergunta. Com base no seu perfil emocional, posso te ajudar com orientações específicas sobre desenvolvimento pessoal, técnicas de bem-estar e estratégias de engajamento.
+
+Você pode me perguntar sobre:
+• Livros e materiais de estudo
+• Atividades práticas para o dia a dia
+• Técnicas de mindfulness e meditação
+• Estratégias para melhorar indicadores específicos
+
+O que você gostaria de saber?`;
         }
 
         // Permitir Enter para analisar
