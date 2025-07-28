@@ -96,6 +96,14 @@
             margin-bottom: 20px;
             font-weight: 600;
         }
+        /* CORREÇÃO: Canvas com dimensões fixas para evitar loop de redimensionamento */
+        .average-chart-container canvas {
+            width: 100% !important;
+            height: 400px !important;
+            max-width: 500px;
+            margin: 0 auto;
+            display: block;
+        }
         /* FIM: Estilos para o gráfico radar das médias gerais */
         table {
             width: 100%;
@@ -330,7 +338,7 @@
         <div class="navigation-links-group">
             <a href="index.html" class="navigation-link">🏠 Home</a>
             <a href="questionario.html" class="navigation-link">← Voltar ao Questionário</a>
-            <button class="refresh-btn" onclick="loadResponses()">�� Atualizar Dados</button>
+            <button class="refresh-btn" onclick="loadResponses()">🔄 Atualizar Dados</button>
         </div>
         
         <h1>Administração de Respostas do Questionário</h1>
@@ -543,15 +551,23 @@
             }
         }
 
-        // NOVA FUNÇÃO: Desenha o gráfico radar das médias gerais
+        // FUNÇÃO CORRIGIDA: Desenha o gráfico radar das médias gerais
         function drawAverageRadarChart(engajamento, bemEstar, estresse) {
-            const ctx = document.getElementById('averageRadarChart').getContext('2d');
+            const ctx = document.getElementById('averageRadarChart');
+            
+            // Verifica se o elemento canvas existe
+            if (!ctx) {
+                console.error('Canvas element not found');
+                return;
+            }
 
             // Destrói a instância anterior do gráfico se existir para evitar sobreposição
             if (averageRadarChartInstance) {
                 averageRadarChartInstance.destroy();
+                averageRadarChartInstance = null;
             }
 
+            // Cria nova instância do gráfico com configurações otimizadas
             averageRadarChartInstance = new Chart(ctx, {
                 type: 'radar',
                 data: {
@@ -569,6 +585,9 @@
                     }]
                 },
                 options: {
+                    responsive: true,
+                    maintainAspectRatio: true, // CORREÇÃO: Mudado para true para evitar redimensionamento infinito
+                    aspectRatio: 1, // CORREÇÃO: Define proporção fixa
                     elements: {
                         line: {
                             borderWidth: 3
@@ -605,12 +624,15 @@
                             }
                         }
                     },
-                    responsive: true,
-                    maintainAspectRatio: false, // Permite que a altura e largura sejam controladas pelo CSS
+                    // CORREÇÃO: Remove eventos de redimensionamento que podem causar loops
+                    onResize: null,
+                    animation: {
+                        duration: 0 // CORREÇÃO: Desabilita animações para evitar problemas de renderização
+                    }
                 }
             });
         }
-        // FIM: Nova Função drawAverageRadarChart
+        // FIM: Função corrigida drawAverageRadarChart
 
         // Nova função para lidar com a limpeza dos dados, incluindo a verificação da senha
         async function handleClearData(password) {
@@ -686,11 +708,6 @@
         // Inicialização ao carregar a página
         document.addEventListener('DOMContentLoaded', loadResponses);
         document.getElementById('clearDataBtn').addEventListener('click', clearAllData);
-        
-        // --- IMPORTANTE: O BLOCO 'window.addEventListener('storage')' FOI REMOVIDO AQUI ---
-        // Se você o encontrar em sua versão local, por favor, remova-o.
-        // Ele pode estar causando recargas indesejadas se o 'questionario.html' estiver aberto
-        // e salvando dados no localStorage, mesmo que a administração agora use Google Sheets.
     </script>
 </body>
 </html>
