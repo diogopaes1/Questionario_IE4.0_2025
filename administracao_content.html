@@ -330,7 +330,7 @@
         <div class="navigation-links-group">
             <a href="index.html" class="navigation-link">🏠 Home</a>
             <a href="questionario.html" class="navigation-link">← Voltar ao Questionário</a>
-            <button class="refresh-btn" onclick="loadResponses()">🔄 Atualizar Dados</button>
+            <button class="refresh-btn" onclick="loadResponses()">�� Atualizar Dados</button>
         </div>
         
         <h1>Administração de Respostas do Questionário</h1>
@@ -481,14 +481,14 @@
                     document.getElementById('avgEngajamento').textContent = '0.00%';
                     document.getElementById('avgBemEstar').textContent = '0.00%';
                     document.getElementById('avgEstresse').textContent = '0.00%';
-                    // NOVO: Esconde o gráfico se não houver dados
+                    // Esconde o gráfico se não houver dados
                     if (averageChartContainer) {
                         averageChartContainer.style.display = 'none';
                     }
                     return;
                 } else {
                     noDataInfo.style.display = 'none';
-                    // NOVO: Mostra o gráfico se houver dados
+                    // Mostra o gráfico se houver dados
                     if (averageChartContainer) {
                         averageChartContainer.style.display = 'block';
                     }
@@ -529,14 +529,14 @@
                 document.getElementById('avgBemEstar').textContent = avgBemEstar.toFixed(2) + '%';
                 document.getElementById('avgEstresse').textContent = avgEstresse.toFixed(2) + '%';
 
-                // NOVO: Desenha o gráfico radar com as médias gerais
+                // Desenha o gráfico radar com as médias gerais
                 drawAverageRadarChart(avgEngajamento, avgBemEstar, avgEstresse);
 
             } catch (error) {
                 console.error('Erro ao carregar dados:', error);
                 corpoTabela.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #e74c3c;">Erro ao carregar dados. Tente recarregar a página.</td></tr>';
                 displayStatusMessage('Erro ao carregar dados. Verifique sua conexão e o Google Apps Script.', 'error');
-                // NOVO: Esconde o gráfico em caso de erro
+                // Esconde o gráfico em caso de erro
                 if (averageChartContainer) {
                     averageChartContainer.style.display = 'none';
                 }
@@ -686,17 +686,11 @@
         // Inicialização ao carregar a página
         document.addEventListener('DOMContentLoaded', loadResponses);
         document.getElementById('clearDataBtn').addEventListener('click', clearAllData);
-
-        // --- OBSERVAÇÃO IMPORTANTE: Removido o setInterval de auto-refresh ---
-        // Se você tiver um bloco como este abaixo no seu arquivo, por favor, remova-o.
-        /*
-        setInterval(function() {
-            if (document.visibilityState === 'visible') {
-                loadResponses();
-            }
-        }, 30000);
-        */
-        // --- FIM OBSERVAÇÃO ---
+        
+        // --- IMPORTANTE: O BLOCO 'window.addEventListener('storage')' FOI REMOVIDO AQUI ---
+        // Se você o encontrar em sua versão local, por favor, remova-o.
+        // Ele pode estar causando recargas indesejadas se o 'questionario.html' estiver aberto
+        // e salvando dados no localStorage, mesmo que a administração agora use Google Sheets.
     </script>
 </body>
 </html>
